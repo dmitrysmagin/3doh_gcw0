@@ -839,7 +839,7 @@ int _madam_HandleCEL(void)
 		if (CCBFLAGS & CCB_PXOR) {
 			PXOR1 = 0;
 			PXOR2 = 0x1f1f1f1f;
-		}else  {
+		} else {
 			PXOR1 = 0xFFffFFff;
 			PXOR2 = 0;
 		}
@@ -948,7 +948,7 @@ int _madam_HandleCEL(void)
 				PRE1 = mread(CURRENTCCB);
 				CURRENTCCB += 4;
 			}
-		}else if (!PDATF) {
+		} else if (!PDATF) {
 			PRE0 = mread(PDATA);
 			PDATA += 4;
 			if (!(CCBFLAGS & CCB_PACKED)) {
@@ -1232,7 +1232,7 @@ unsigned int  PDEC(unsigned int pixel, uint16_t * amv)
 			pres = MAPu8b[pix1.raw & 0xFF];
 
 			resamv = 0x49;
-		}else  {
+		} else {
 			// (Coded 8 bit CEL)
 
 			pres = PLUT[pix1.c8b.c];
@@ -1256,7 +1256,7 @@ unsigned int  PDEC(unsigned int pixel, uint16_t * amv)
 			// pres=(pres&0x7fff)+(pix1.u16b.p<<15);//pmode=pix1.u16b.p; ???
 			resamv = 0x49;
 
-		}else  {
+		} else {
 			// (Uncoded 16 bit CEL)
 
 			pres = PLUT[pix1.c16b.c];
@@ -1301,7 +1301,7 @@ unsigned int  PPROJ_OUTPUT(unsigned int pdec_output, unsigned int pproc_output, 
 	if (CCBFLAGS & CCB_PLUTPOS) {
 		// Use pixel decoder output.
 		VHOutput = (pdec_output & 0x8001);
-	}else  {
+	} else {
 		// Use VH values determined from the CEL's origin.
 		VHOutput = CEL_ORIGIN_VH_VALUE;
 	}
@@ -1335,9 +1335,9 @@ unsigned int  PPROJ_OUTPUT(unsigned int pdec_output, unsigned int pproc_output, 
 	int b15mode = (CCBCTL0 & B15POS_MASK);
 	if (b15mode == B15POS_PDC) {
 		// Don't touch it.
-	}else if (b15mode == B15POS_0) {
+	} else if (b15mode == B15POS_0) {
 		VHOutput = (VHOutput & ~0x8000);
-	}else if (b15mode == B15POS_1) {
+	} else if (b15mode == B15POS_1) {
 		VHOutput |= 0x8000;
 	}
 
@@ -1347,12 +1347,12 @@ unsigned int  PPROJ_OUTPUT(unsigned int pdec_output, unsigned int pproc_output, 
 	int b0mode = (CCBCTL0 & B0POS_MASK);
 	if (b0mode == B0POS_PDC) {
 		// Don't touch it.
-	}else if (b0mode == B0POS_PPMP) {
+	} else if (b0mode == B0POS_PPMP) {
 		// Use LSB from pixel processor output.
 		VHOutput = (VHOutput & ~0x1) | (pproc_output & 0x1);
-	}else if (b0mode == B0POS_0) {
+	} else if (b0mode == B0POS_0) {
 		VHOutput = (VHOutput & ~0x1);
-	}else if (b0mode == B0POS_1) {
+	} else if (b0mode == B0POS_1) {
 		VHOutput |= 0x01;
 	}
 
@@ -1604,7 +1604,7 @@ void  DrawPackedCel_New(void)
 						else if (type == 3)
 							BitReaderBig_Skip(&bitoper, bpp);
 						continue;
-					}else  {
+					} else {
 						if (HDX1616) xcur += HDX1616 * (scipw);
 						if (HDY1616) ycur += HDY1616 * (scipw);
 						pixcount -= scipw;
@@ -1667,7 +1667,7 @@ void  DrawPackedCel_New(void)
 			start = lastaddr;
 
 		}
-	}else if (TEXEL_FUN_NUMBER == 1) {
+	} else if (TEXEL_FUN_NUMBER == 1) {
 		int drawHeight;
 
 		unknownflag11 = 100000;
@@ -1745,7 +1745,7 @@ void  DrawPackedCel_New(void)
 
 		}
 
-	}else  {
+	} else {
 		if (speedfixes >= 0 && speedfixes <= 100001) speedfixes = 100000;
 		for (currentrow = 0; currentrow < SPRHI; currentrow++) {
 
@@ -1822,7 +1822,7 @@ void  DrawPackedCel_New(void)
 							xdown += HDX1616;
 							ydown += HDY1616;
 						}
-					}else  {
+					} else {
 						xcur += hdx * __pix;
 						ycur += hdy * __pix;
 						xdown += HDX1616 * __pix;
@@ -1846,7 +1846,7 @@ void  DrawPackedCel_New(void)
 	if (fixmode & FIX_BIT_GRAPHICS_STEP_Y) {
 		YPOS1616 = ycur;
 		YPOS = YPOS1616 / 65536.0;
-	}else  {
+	} else {
 		XPOS1616 = xcur;
 		XPOS = XPOS1616 / 65536.0;
 	}
@@ -2014,7 +2014,7 @@ void  DrawLiteralCel_New(void)
 	if (fixmode & FIX_BIT_GRAPHICS_STEP_Y) {
 		YPOS1616 = ycur;
 		YPOS = YPOS1616 / 65536.0;
-	}else  {
+	} else {
 		XPOS1616 = xcur;
 		XPOS = XPOS1616 / 65536.0;
 	}
@@ -2142,7 +2142,7 @@ void  DrawLRCel_New(void)
 	if (fixmode & FIX_BIT_GRAPHICS_STEP_Y) {
 		YPOS1616 = ycur;
 		YPOS = YPOS1616 / 65536.0;
-	}else  {
+	} else {
 		XPOS1616 = xcur;
 		XPOS = XPOS1616 / 65536.0;
 	}
@@ -2235,7 +2235,7 @@ int TestInitVisual(int packed)
 			      (HDY1616 + HDDY1616 * SPRHI) * SPRWI) >> 16;
 		if (ypoints[0] < 0 && ypoints[1] < 0 && ypoints[2] < 0 && ypoints[3] < 0) return -1;
 		if (ypoints[0] > CLIPYVAL && ypoints[1] > CLIPYVAL && ypoints[2] > CLIPYVAL && ypoints[3] > CLIPYVAL) return -1;
-	}else  {
+	} else {
 		xpoints[0] = XPOS1616 >> 16;
 		xpoints[1] = (XPOS1616 + VDX1616 * SPRHI) >> 16;
 		if ( xpoints[0] < 0 && xpoints[1] < 0 && HDX1616 <= 0 && HDDX1616 <= 0 ) return -1;
@@ -2254,17 +2254,17 @@ int TestInitVisual(int packed)
 					if (__abs(HDY1616) == 0x10000 && __abs(VDX1616) == 0x10000 && !((YPOS1616 | XPOS1616) & 0xffff)) {
 						return Init_Line_Map();
 						//return 0;
-					}else  {
+					} else {
 						Init_Scale_Map();
 						return 0;
 					}
 				}
-			}else  {
+			} else {
 				if ((CCBFLAGS & CCB_ACCW)) {
 					if (__abs(HDY1616) == 0x10000 && __abs(VDX1616) == 0x10000 && !((YPOS1616 | XPOS1616) & 0xffff)) {
 						return Init_Line_Map();
 						//return 0;
-					}else  {
+					} else {
 						Init_Scale_Map();
 						return 0;
 					}
@@ -2274,24 +2274,24 @@ int TestInitVisual(int packed)
 			return -1;
 
 
-		}else if (HDY1616 == 0 && VDX1616 == 0) {
+		} else if (HDY1616 == 0 && VDX1616 == 0) {
 
 			if ((HDX1616 < 0 && VDY1616 > 0) || (HDX1616 > 0 && VDY1616 < 0)) {
 				if ((CCBFLAGS & CCB_ACCW)) {
 					if (__abs(HDX1616) == 0x10000 &&    __abs(VDY1616) == 0x10000 && !((YPOS1616 | XPOS1616) & 0xffff)) {
 						return Init_Line_Map();
 						//return 0;
-					}else  {
+					} else {
 						Init_Scale_Map();
 						return 0;
 					}
 				}
-			}else  {
+			} else {
 				if ((CCBFLAGS & CCB_ACW)) {
 					if (__abs(HDX1616) == 0x10000 &&    __abs(VDY1616) == 0x10000 && !((YPOS1616 | XPOS1616) & 0xffff)) {
 						return Init_Line_Map();
 						//return 0;
-					}else  {
+					} else {
 						Init_Scale_Map();
 						return 0;
 					}
@@ -2331,7 +2331,7 @@ int Init_Line_Map(void)
 		if ((((XPOS1616)-((SPRHI - 1) << 16)) >> 16) < 0)
 			TEXTURE_HI_LIM = (XPOS1616 >> 16) + 1;
 		if (TEXTURE_HI_LIM > SPRHI) TEXTURE_HI_LIM = SPRHI;
-	}else if (VDX1616 > 0) {
+	} else if (VDX1616 > 0) {
 		if (((XPOS1616 + (SPRHI << 16)) >> 16) > CLIPXVAL)
 			TEXTURE_HI_LIM = CLIPXVAL - (XPOS1616 >> 16) + 1;
 	}
@@ -2339,7 +2339,7 @@ int Init_Line_Map(void)
 		if ((((YPOS1616)-((SPRHI - 1) << 16)) >> 16) < 0)
 			TEXTURE_HI_LIM = (YPOS1616 >> 16) + 1;
 		if (TEXTURE_HI_LIM > SPRHI) TEXTURE_HI_LIM = SPRHI;
-	}else if (VDY1616 > 0) {
+	} else if (VDY1616 > 0) {
 		if (((YPOS1616 + (SPRHI << 16)) >> 16) > CLIPYVAL)
 			TEXTURE_HI_LIM = CLIPYVAL - (YPOS1616 >> 16) + 1;
 	}
@@ -2363,7 +2363,7 @@ int Init_Line_Map(void)
 		if (VDX1616 < 0) return -1;
 		else if (VDX1616 > 0)
 			TEXTURE_HI_START = -(XPOS1616 >> 16);
-	}else if ((XPOS1616 >> 16) > CLIPXVAL) {
+	} else if ((XPOS1616 >> 16) > CLIPXVAL) {
 		if (HDX1616 > 0) return -1;
 		else if (HDX1616 < 0)
 			TEXTURE_WI_START = (XPOS1616 >> 16) - CLIPXVAL;
@@ -2381,7 +2381,7 @@ int Init_Line_Map(void)
 		if (VDY1616 < 0) return -1;
 		else if (VDY1616 > 0)
 			TEXTURE_HI_START = -(YPOS1616 >> 16);
-	}else if ((YPOS1616 >> 16) > CLIPYVAL) {
+	} else if ((YPOS1616 >> 16) > CLIPYVAL) {
 		if (HDY1616 > 0) return -1;
 		else if (HDY1616 < 0)
 			TEXTURE_WI_START = (YPOS1616 >> 16) - CLIPYVAL;
@@ -2573,7 +2573,7 @@ int  TexelDraw_Arbitrary(uint16_t CURPIX, uint16_t LAMV,
 		if (i < (yB) && i >= (yA)) {
 			xpoints[cnt_cross] = (int)((quickDivide(((xB - xA) * (i - yA)), (yB - yA)) + xA));
 			updowns[cnt_cross++] = 1;
-		}else if (i >= (yB) && i < (yA)) {
+		} else if (i >= (yB) && i < (yA)) {
 			xpoints[cnt_cross] = (int)((quickDivide(((xA - xB) * (i - yB)), (yA - yB)) + xB));
 			updowns[cnt_cross++] = 0;
 		}
@@ -2581,7 +2581,7 @@ int  TexelDraw_Arbitrary(uint16_t CURPIX, uint16_t LAMV,
 		if (i < (yC) && i >= (yB)) {
 			xpoints[cnt_cross] = (int)((quickDivide(((xC - xB) * (i - yB)), (yC - yB)) + xB));
 			updowns[cnt_cross++] = 1;
-		}else if (i >= (yC) && i < (yB)) {
+		} else if (i >= (yC) && i < (yB)) {
 			xpoints[cnt_cross] = (int)((quickDivide(((xB - xC) * (i - yC)), (yB - yC)) + xC));
 			updowns[cnt_cross++] = 0;
 		}
@@ -2589,7 +2589,7 @@ int  TexelDraw_Arbitrary(uint16_t CURPIX, uint16_t LAMV,
 		if (i < (yD) && i >= (yC)) {
 			xpoints[cnt_cross] = (int)((quickDivide(((xD - xC) * (i - yC)), (yD - yC)) + xC));
 			updowns[cnt_cross++] = 1;
-		}else if (i >= (yD) && i < (yC)) {
+		} else if (i >= (yD) && i < (yC)) {
 			xpoints[cnt_cross] = (int)((quickDivide(((xC - xD) * (i - yD)), (yC - yD)) + xD));
 			updowns[cnt_cross++] = 0;
 		}
@@ -2598,7 +2598,7 @@ int  TexelDraw_Arbitrary(uint16_t CURPIX, uint16_t LAMV,
 			if (i < (yA) && i >= (yD)) {
 				xpoints[cnt_cross] = (int)((quickDivide(((xA - xD) * (i - yD)), (yA - yD)) + xD));
 				updowns[cnt_cross] = 1;
-			}else if (i >= (yA) && i < (yD)) {
+			} else if (i >= (yA) && i < (yD)) {
 				xpoints[cnt_cross] = (int)((quickDivide(((xD - xA) * (i - yA)), (yD - yA)) + xA));
 				updowns[cnt_cross] = 0;
 			}

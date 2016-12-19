@@ -73,7 +73,7 @@ void _xbus_SetCommandFIFO(uint32_t val)
 		(*xdev[XBSEL])(XBP_SET_COMMAND, (void*)(uintptr_t)val);
 		if ((*xdev[XBSEL])(XBP_FIQ, NULL))
 			_clio_GenerateFiq(4, 0);
-	}else if (XBSEL == 0xf) {
+	} else if (XBSEL == 0xf) {
 		if (CmdPtrF < 7) {
 			CmdF[CmdPtrF] = (uint8_t)val;
 			CmdPtrF++;
@@ -262,7 +262,7 @@ void _xbus_Save(void *buff)
 		if (!xdev[i]) {
 			tmp = 0;
 			memcpy(&((uint8_t*)buff)[j + i * 4], &tmp, 4);
-		}else  {
+		} else {
 			(*xdev[i])(XBP_GET_SAVEDATA, &((uint8_t*)buff)[off]);
 			memcpy(&((uint8_t*)buff)[j + i * 4], &off, 4);
 			off += (intptr_t)(*xdev[i])(XBP_GET_SAVESIZE, NULL);

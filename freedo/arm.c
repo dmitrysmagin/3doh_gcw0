@@ -688,7 +688,7 @@ void ldm_accur(uint32_t opc, uint32_t base, uint32_t rn_ind)
 			i++;
 			list >>= 1;
 		}
-	}else  {
+	} else {
 		if (opc & (1 << 21)) RON_USER[rn_ind] = base;
 		while (list) {
 			if (list & 1) {
@@ -766,7 +766,7 @@ void stm_accur(uint32_t opc, uint32_t base, uint32_t rn_ind)
 			list >>= 1;
 		}
 		if (opc & (1 << 21)) loadusr(rn_ind, base);
-	}else  {
+	} else {
 		if ((opc & (1 << 21)) && (opc & ((1 << rn_ind) - 1)) ) RON_USER[rn_ind] = base;
 		while (list) {
 			if (list & 1) {
@@ -807,7 +807,7 @@ void  bdt_core(uint32_t opc)
 
 		ldm_accur(opc, base, rn_ind);
 
-	}else   //из регистра в память
+	} else  //из регистра в память
 		stm_accur(opc, base, rn_ind);
 }
 
@@ -917,7 +917,7 @@ static INLINE bool ARM_ALU_Exec(uint32_t inst, uint8_t opc, uint32_t op1, uint32
 				SPSR[arm_mode_table[MODE]] = (SPSR[arm_mode_table[MODE]] & 0x0fffffff) | (op2 & 0xf0000000);
 			else
 				CPSR = (CPSR & 0x0fffffff) | (op2 & 0xf0000000);
-		}else  {
+		} else {
 			if ((inst >> 22) & 1)
 				SPSR[arm_mode_table[MODE]] = op2 & 0xf00000df;
 			else
@@ -1101,7 +1101,7 @@ uint32_t  ARM_SHIFT_SC(uint32_t value, uint8_t shift, uint8_t type)
 			shift = ((shift) & 31);
 			if (shift) {
 				ARM_SET_C((value >> (shift - 1)) & 1);
-			}else  {
+			} else {
 				ARM_SET_C((value >> 31) & 1);
 			}
 		}else
@@ -1133,7 +1133,7 @@ void ARM_SWAP(uint32_t cmd)
 		REG_PC -= 8;
 		//	if(MAS_Access_Exept)return true;
 		RON_USER[(cmd >> 12) & 0xf] = tmp;
-	}else  {
+	} else {
 		tmp = mreadw(addr);
 		//if(MAS_Access_Exept)return true;
 		mwritew(addr, RON_USER[cmd & 0xf]);
@@ -1232,12 +1232,12 @@ void arm60_MULT(unsigned long cmd)
 			res = RON_USER[(cmd >> 12) & 0xf];
 			REG_PC -= 8;
 //								break;
-		}else  {
+		} else {
 //							default:
 			res = 0;
 //								break;
 		}
-	}else  {
+	} else {
 		if (cmd & (1 << 21)) {
 //							switch
 			res = RON_USER[cmd & 0xf] * RON_USER[(cmd >> 8) & 0xf];
@@ -1334,7 +1334,7 @@ void arm60_SDT(unsigned long cmd)
 	if (cmd & (1 << 20)) {                            //load
 		if (cmd & (1 << 22)) {                           //bytes
 			val = mreadb(tbas) & 0xff;
-		}else  {                               //words/halfwords
+		} else {                               //words/halfwords
 			val = mreadw(tbas);
 			rora = tbas & 3;
 			if ((rora)) val = _rotr(val, rora * 8);
@@ -1354,7 +1354,7 @@ void arm60_SDT(unsigned long cmd)
 		else
 			load((cmd >> 12) & 0xf, val);
 
-	}else  {                            // store
+	} else {                            // store
 
 		if ((cmd & (1 << 21)) && !(cmd & (1 << 24)))
 			val = rreadusr((cmd >> 12) & 0xf);                            // privil mode
@@ -1407,7 +1407,7 @@ void arm60_ALU(unsigned long cmd)
 			op2 = _rotr(op2, (cmd >> 7) & 0x1e);
 		}
 		op1 = RON_USER[(cmd >> 16) & 0xf];
-	}else  {
+	} else {
 		shtype = (cmd >> 5) & 0x3;
 		if (cmd & (1 << 4)) {
 			shift = ((cmd >> 8) & 0xf);
@@ -1416,7 +1416,7 @@ void arm60_ALU(unsigned long cmd)
 			op2 = RON_USER[cmd & 0xf];
 			op1 = RON_USER[(cmd >> 16) & 0xf];
 			CYCLES -= ICYCLE;
-		}else  {
+		} else {
 			shift = (cmd >> 7) & 0x1f;
 
 			if (!shift) {
@@ -1479,7 +1479,7 @@ void arm60_ALU(unsigned long cmd)
 				SPSR[arm_mode_table[MODE]] = (SPSR[arm_mode_table[MODE]] & 0x0fffffff) | (op2 & 0xf0000000);
 			else
 				CPSR = (CPSR & 0x0fffffff) | (op2 & 0xf0000000);
-		}else  {
+		} else {
 			if ((cmd >> 22) & 1)
 				SPSR[arm_mode_table[MODE]] = op2 & 0xf00000df;
 			else
@@ -1607,28 +1607,28 @@ int _arm_Execute(void)
 		if ((cmd & 0x0fc000f0) == 0x00000090) {          /* Multiplication */
 			arm60_MULT(cmd);
 //					printf("%x\n",cmd);
-		}else if (!(cmd & 0x0c000000)) {      /* Data processing */
+		} else if (!(cmd & 0x0c000000)) {      /* Data processing */
 //				HandleALU(cpustate, insn);
 //				arm60_ALU(cmd);
 //				printf("%x\n",cmd);
-		}else if ((cmd & 0x0c000000) == 0x04000000) {      /* Single data access */
+		} else if ((cmd & 0x0c000000) == 0x04000000) {      /* Single data access */
 			arm60_SDT(cmd);
 //				HandleMemSingle(cpustate, insn);
 //				R15 += 4;
-		}else if ((cmd & 0x0e000000) == 0x08000000 ) {      /* Block data access */
+		} else if ((cmd & 0x0e000000) == 0x08000000 ) {      /* Block data access */
 //				HandleMemBlock(cpustate, insn);
 //				R15 += 4;
 			bdt_core(cmd);
-		}else if ((cmd & 0x0e000000) == 0x0a000000) {        /* Branch */
+		} else if ((cmd & 0x0e000000) == 0x0a000000) {        /* Branch */
 //				HandleBranch(cpustate, insn);
 			arm60_BRANCH(cmd);
-		}else if ((cmd & 0x0f000000) == 0x0e000000) {        /* Coprocessor */
+		} else if ((cmd & 0x0f000000) == 0x0e000000) {        /* Coprocessor */
 			//			HandleCoPro(cpustate, insn);
 //				R15 += 4;
 			arm60_COPRO(cmd);
-		}else if ((cmd & 0x0f000000) == 0x0f000000) {        /* Software interrupt */
+		} else if ((cmd & 0x0f000000) == 0x0f000000) {        /* Software interrupt */
 			decode_swi(cmd);
-		}else  {     /* Undefined */
+		} else {     /* Undefined */
 			SPSR[arm_mode_table[0x1b]] = CPSR;
 			SETI(1);
 			SETM(0x1b);
@@ -1666,9 +1666,7 @@ int _arm_Execute(void)
 		}
 		;
 
-	}               //condition
-
-
+	}
 
 	if (!ISF && _clio_NeedFIQ() /*gFIQ*/) {
 
@@ -1683,350 +1681,8 @@ int _arm_Execute(void)
 		REG_PC = 0x0000001c;                      //1c
 	}
 
-//	} // for(CYCLES)
-
-
 	return -CYCLES;
 }
-
-
-/*
-   int _arm_Execute(void)
-   {
-   uint32_t op2,op1;
-   uint8_t shift;
-   uint8_t shtype;
-   uint32_t cmd,pc_tmp;
-   bool isexeption=false;
-
-   //for(; CYCLES>0; CYCLES-=SCYCLE)
-   {
-      if(REG_PC==0x94D60&&RON_USER[0]==0x113000&&RON_USER[1]==0x113000&&cnbfix==0&&(fixmode&FIX_BIT_TIMING_1))
-      {
-         REG_PC=0x9E9CC;
-         cnbfix=1;
-      }
-      cmd=mreadw(REG_PC);
-
-      curr_pc=REG_PC;
-
-
-      REG_PC+=4;
-
-      CYCLES=-SCYCLE;
-      if(cmd==0xE5101810&&CPSR==0x80000093)
-         isexeption=true;
-      //	if(REG_PC==0x9E9F0){isexeption=true; RON_USER[5]=0xE2998; fix=1;}
-      if(((cond_flags_cross[(((uint32_t)cmd)>>28)]>>((CPSR)>>28))&1)&&isexeption==false)
-      {
-         switch((cmd>>24)&0xf)  //разбор типа команды
-         {
-            case 0x0:	//Multiply
-
-               if ((cmd & ARM_MUL_MASK) == ARM_MUL_SIGN)
-               {
-                  uint32_t res = ((calcbits(RON_USER[(cmd>>8)&0xf])+5)>>1)-1;
-                  if(res>16)
-                     CYCLES-=16;
-                  else
-                     CYCLES-=res;
-
-                  if(((cmd>>16)&0xf)==(cmd&0xf))
-                  {
-                     if (cmd&(1<<21))
-                     {
-                        REG_PC+=8;
-                        res=RON_USER[(cmd>>12)&0xf];
-                        REG_PC-=8;
-                     }
-                     else
-                        res=0;
-                  }
-                  else
-                  {
-                     if (cmd&(1<<21))
-                     {
-                        res=RON_USER[cmd&0xf]*RON_USER[(cmd>>8)&0xf];
-                        REG_PC+=8;
-                        res+=RON_USER[(cmd>>12)&0xf];
-                        REG_PC-=8;
-                     }
-                     else
-                        res=RON_USER[cmd&0xf]*RON_USER[(cmd>>8)&0xf];
-                  }
-                  if(cmd&(1<<20))
-                  {
-                     ARM_SET_ZN(res);
-                  }
-
-                  RON_USER[(cmd>>16)&0xf]=res;
-                  break;
-               }
-            case 0x1:	//Single Data Swap
-               if ((cmd & ARM_SDS_MASK) == ARM_SDS_SIGN)
-               {
-                  ARM_SWAP(cmd);
-                  //if(MAS_Access_Exept)
-                  CYCLES-=2*NCYCLE+ICYCLE;
-                  break;
-               }
-            case 0x2:	//ALU
-            case 0x3:
-               {
-
-                  if((cmd&0x2000090)!=0x90)
-                  {
-                     /////////////////////////////////////////////SHIFT
-                     pc_tmp=REG_PC;
-                     REG_PC+=4;
-                     if (cmd&(1<<25))
-                     {
-                        op2=cmd&0xff;
-                        if(((cmd>>7)&0x1e))
-                        {
-                           op2= ROTR(op2, (cmd>>7)&0x1e);
-                           //if((cmd&(1<<20))) SETC(((cmd&0xff)>>(((cmd>>7)&0x1e)-1))&1);
-                        }
-                        op1=RON_USER[(cmd>>16)&0xf];
-                     }
-                     else
-                     {
-                        shtype=(cmd>>5)&0x3;
-                        if(cmd&(1<<4))
-                        {
-                           shift=((cmd>>8)&0xf);
-                           shift=(RON_USER[shift])&0xff;
-                           REG_PC+=4;
-                           op2=RON_USER[cmd&0xf];
-                           op1=RON_USER[(cmd>>16)&0xf];
-                           CYCLES-=ICYCLE;
-                        }
-                        else
-                        {
-                           shift=(cmd>>7)&0x1f;
-
-                           if(!shift)
-                           {
-                              if(shtype)
-                              {
-                                 if(shtype==3)shtype++;
-                                 else shift=32;
-                              }
-                           }
-                           op2=RON_USER[cmd&0xf];
-                           op1=RON_USER[(cmd>>16)&0xf];
-                        }
-
-
-                        //if((cmd&(1<<20)) && is_logic[((cmd>>21)&0xf)] ) op2=ARM_SHIFT_SC(op2, shift, shtype);
-                        //else
-                        op2=ARM_SHIFT_NSC(op2, shift, shtype);
-
-                     }
-
-                     REG_PC=pc_tmp;
-
-                     if((cmd&(1<<20)) && is_logic[((cmd>>21)&0xf)] ) ARM_SET_C(carry_out);
-
-
-                     if(ARM_ALU_Exec(cmd, (cmd>>20)&0x1f ,op1,op2,&RON_USER[(cmd>>12)&0xf]))
-                        break;
-
-                     if(((cmd>>12)&0xf)==0xf) //destination = pc, take care of cpsr
-                     {
-                        if(cmd&(1<<20))
-                        {
-                           _arm_SetCPSR(SPSR[arm_mode_table[MODE]]);
-                        }
-
-                        CYCLES-=ICYCLE+NCYCLE;
-
-                     }
-                     break;
-                  }
-               }
-            case 0x6:	//Undefined
-            case 0x7:
-
-   Undefine:
-               if((cmd&ARM_UND_MASK)==ARM_UND_SIGN)
-               {
-                  //!!Exeption!!
-                  //         io_interface(EXT_DEBUG_PRINT,(void*)str.print("*PC: 0x%8.8X undefined\n",REG_PC).CStr());
-
-                  SPSR[arm_mode_table[0x1b]]=CPSR;
-                  SETI(1);
-                  SETM(0x1b);
-                  load(14,REG_PC);
-                  REG_PC=0x00000004;  // (-4) fetch!!!
-                  CYCLES-=SCYCLE+NCYCLE; // +2S+1N
-                  break;
-               }
-            case 0x4:	//Single Data Transfer
-            case 0x5:
-
-               if((cmd&0x2000090)!=0x2000090)
-               {
-                  uint32_t base,tbas;
-                  uint32_t oper2;
-                  uint32_t val;
-
-                  pc_tmp=REG_PC;
-                  REG_PC+=4;
-                  if(cmd&(1<<25))
-                  {
-                     shtype=(cmd>>5)&0x3;
-                     if(cmd&(1<<4))
-                     {
-                        shift=((cmd>>8)&0xf);
-                        shift=(RON_USER[shift])&0xff;
-                        REG_PC+=4;
-                     }
-                     else
-                     {
-                        shift=(cmd>>7)&0x1f;
-                        if(!shift)
-                        {
-                           if(shtype)
-                           {
-                              if(shtype==3)shtype++;
-                              else shift=32;
-                           }
-                        }
-                     }
-                     oper2=ARM_SHIFT_NSC(RON_USER[cmd&0xf], shift, shtype);
-
-                  }
-                  else
-                     oper2=(cmd&0xfff);
-
-
-                  tbas=base=RON_USER[((cmd>>16)&0xf)];
-
-
-                  if(!(cmd&(1<<23)))
-                     oper2=0-oper2;
-
-                  if(cmd&(1<<24))
-                     tbas=base=base+oper2;
-                  else
-                     base=base+oper2;
-
-
-                  if(cmd&(1<<20)) //load
-                  {
-                     if(cmd&(1<<22))//bytes
-                        val=mreadb(tbas)&0xff;
-                     else //words/halfwords
-                     {
-                        unsigned rora = tbas & 3;
-                        val           = mreadw(tbas);
-
-                        if((rora))
-                           val = ROTR(val,rora*8);
-                     }
-
-                     if(((cmd>>12)&0xf)==0xf)
-                        CYCLES-=SCYCLE+NCYCLE;   // +1S+1N if R15 load
-
-                     CYCLES-=NCYCLE+ICYCLE;  // +1N+1I
-                     REG_PC=pc_tmp;
-
-                     if ((cmd&(1<<21)) || (!(cmd&(1<<24)))) load((cmd>>16)&0xf,base);
-
-                     if((cmd&(1<<21)) && !(cmd&(1<<24)))
-                        loadusr((cmd>>12)&0xf,val);//privil mode
-                     else
-                        load((cmd>>12)&0xf,val);
-
-                  }
-                  else
-                  { // store
-
-                     if((cmd&(1<<21)) && !(cmd&(1<<24)))
-                        val=rreadusr((cmd>>12)&0xf);// privil mode
-                     else
-                        val=RON_USER[(cmd>>12)&0xf];
-
-                     //if(((cmd>>12)&0xf)==0xf)val+=delta;
-                     REG_PC=pc_tmp;
-                     CYCLES-=-SCYCLE+2*NCYCLE;  // 2N
-
-                     if(cmd&(1<<22))//bytes/words
-                        mwriteb(tbas,val);
-                     else //words/halfwords
-                        mwritew(tbas,val);
-
-                     if ( (cmd&(1<<21)) || !(cmd&(1<<24)) ) load((cmd>>16)&0xf,base);
-
-                  }
-
-                  //if(MAS_Access_Exept)
-
-
-                  break;
-               }
-               else goto Undefine;
-
-            case 0x8:	//Block Data Transfer
-            case 0x9:
-
-               bdt_core(cmd);
-
-
-               break;
-
-            case 0xa:	//BRANCH
-            case 0xb:
-               if(cmd&(1<<24))
-                  RON_USER[14]=REG_PC;
-               REG_PC+=(((cmd&0xffffff)|((cmd&0x800000)?0xff000000:0))<<2)+4;
-
-               CYCLES-=SCYCLE+NCYCLE; //2S+1N
-
-               break;
-
-            case 0xf:	//SWI
-               decode_swi(cmd);
-               break;
-               //---------
-            default:	//coprocessor
-               //!!Exeption!!
-               //io_interface(EXT_DEBUG_PRINT,(void*)str.print("*PC: 0x%8.8X undefined\n",REG_PC).CStr());
-
-               SPSR[arm_mode_table[0x1b]]=CPSR;
-               SETI(1);
-               SETM(0x1b);
-               load(14,REG_PC);
-               REG_PC=0x00000004;
-               CYCLES-=SCYCLE+NCYCLE;
-               break;
-
-         };
-
-
-      }	//condition
-
-      if(!ISF && _clio_NeedFIQ())
-      {
-
-         //Set_madam_FSM(FSM_SUSPENDED);
-         gFIQ=0;
-
-         SPSR[arm_mode_table[0x11]]=CPSR;
-         SETF(1);
-         SETI(1);
-         SETM(0x11);
-         load(14,REG_PC+4);
-         REG_PC=0x0000001c;//1c
-      }
-
-   } // for(CYCLES)
-
-
-   return -CYCLES;
-   }
- */
 
 void _mem_write8(uint32_t addr, uint8_t val)
 {
@@ -2109,7 +1765,7 @@ void mwritew(uint32_t addr, uint32_t val)
 		if (index & 0x80000) { //if (addr>=0x03180000)
 			_diag_Send(val);
 			return;
-		}else if (index & 0x40000) { //else if ((addr>=0x03140000) && (addr<0x03180000))
+		} else if (index & 0x40000) { //else if ((addr>=0x03140000) && (addr<0x03180000))
 			//  sprintf(str,":NVRAM Write [0x%X] = 0x%8.8X\n",addr,val);
 			//  CDebug::DPrint(str);
 			pNVRam[(index >> 2) & 32767] = (uint8_t)val;
@@ -2187,7 +1843,7 @@ void mwriteb(uint32_t addr, uint32_t val)
 	if (addr < 0x00300000) { //dram1&dram2&vram
 		_mem_write8(addr ^ 3, val);
 		return;
-	}else if (!((index = (addr ^ 0x03100003)) & ~0xFFFFF)) { //NVRAM
+	} else if (!((index = (addr ^ 0x03100003)) & ~0xFFFFF)) { //NVRAM
 		if ((index & 0x40000) == 0x40000) {
 			//if((addr&3)==3)
 			{
@@ -2220,7 +1876,7 @@ uint32_t mreadb(uint32_t addr)
 		if (gSecondROM) // 2nd rom
 			return pRom[index + 1024 * 1024];
 		return pRom[index];
-	}else if (!((index = (addr ^ 0x03100003)) & ~0xFFFFF)) { //NVRAM
+	} else if (!((index = (addr ^ 0x03100003)) & ~0xFFFFF)) { //NVRAM
 		if ((index & 0x40000) == 0x40000) {
 			//if((addr&3)!=3)return 0;
 			//else

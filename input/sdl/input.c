@@ -136,7 +136,7 @@ void inputPoll_internal()
 		                if(eventjoy.jaxis.value < -3200){
 		                        internal_input_state[eventjoy.jaxis.which].buttons&=~INPUTBUTTONRIGHT;
 		                        internal_input_state[eventjoy.jaxis.which].buttons|=INPUTBUTTONLEFT;
-		                }else if(eventjoy.jaxis.value > 3200){
+		                } else if(eventjoy.jaxis.value > 3200){
 		                        internal_input_state[eventjoy.jaxis.which].buttons&=~INPUTBUTTONLEFT;
 		                        internal_input_state[eventjoy.jaxis.which].buttons|=INPUTBUTTONRIGHT;
 		                }else{
@@ -149,7 +149,7 @@ void inputPoll_internal()
 		                if(eventjoy.jaxis.value < -3200){
 		                        internal_input_state[eventjoy.jaxis.which].buttons&=~INPUTBUTTONDOWN;
 		                        internal_input_state[eventjoy.jaxis.which].buttons|=INPUTBUTTONUP;
-		                }else if(eventjoy.jaxis.value > 3200){
+		                } else if(eventjoy.jaxis.value > 3200){
 		                        internal_input_state[eventjoy.jaxis.which].buttons&=~INPUTBUTTONUP;
 		                        internal_input_state[eventjoy.jaxis.which].buttons|=INPUTBUTTONDOWN;
 		                }else{

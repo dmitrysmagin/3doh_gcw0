@@ -78,7 +78,7 @@ void _sport_WriteAccess(uint32_t index, uint32_t mask)
 		if (mask == 0xFFFFffff) {
 			for (i = 0; i < 512; i++)
 				((uint32_t*)VRAM)[index + i] = gSPORTCOLOR;
-		}else  {// mask is not 0xFFFFffff
+		} else {// mask is not 0xFFFFffff
 			for (i = 0; i < 512; i++) {
 				tmp = ((uint32_t*)VRAM)[index + i];
 				tmp = ((tmp ^ gSPORTCOLOR) & mask) ^ gSPORTCOLOR;
@@ -103,7 +103,7 @@ void _sport_WriteAccess(uint32_t index, uint32_t mask)
 			memcpy(&((uint32_t*)VRAM)[gSPORTDESTINATION + 1024 * 256], &((uint32_t*)VRAM)[gSPORTSOURCE + 1024 * 256], 2048);
 			memcpy(&((uint32_t*)VRAM)[gSPORTDESTINATION + 2 * 1024 * 256], &((uint32_t*)VRAM)[gSPORTSOURCE + 2 * 1024 * 256], 2048);
 			memcpy(&((uint32_t*)VRAM)[gSPORTDESTINATION + 3 * 1024 * 256], &((uint32_t*)VRAM)[gSPORTSOURCE + 3 * 1024 * 256], 2048);
-		}else  {// mask != 0xFFFFffff
+		} else {// mask != 0xFFFFffff
 			for (i = 0; i < 512; i++) {
 				tmp = ((uint32_t*)VRAM)[gSPORTDESTINATION + i];
 				ctmp = ((uint32_t*)VRAM)[gSPORTSOURCE + i];

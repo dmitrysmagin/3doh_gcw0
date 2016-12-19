@@ -148,7 +148,7 @@ void DoCommand(struct cdrom_Device *cd)
 			cd->XbusStatus |= CDST_SPIN;
 			cd->XbusStatus |= CDST_RDY;
 			cd->MEIStatus = MEI_CDROM_no_error;
-		}else  {
+		} else {
 			cd->XbusStatus |= CDST_ERRO;
 			cd->XbusStatus &= ~CDST_RDY;
 			cd->MEIStatus = MEI_CDROM_recv_ecc;
@@ -175,7 +175,7 @@ void DoCommand(struct cdrom_Device *cd)
 			cd->XbusStatus |= CDST_RDY;
 			cd->MEIStatus = MEI_CDROM_no_error;
 
-		}else  {
+		} else {
 			cd->XbusStatus |= CDST_ERRO;
 			cd->XbusStatus |= CDST_RDY;
 			cd->MEIStatus = MEI_CDROM_recv_ecc;
@@ -386,7 +386,7 @@ void DoCommand(struct cdrom_Device *cd)
 			cd->Poll |= POLDT;
 			cd->Poll |= POLST;
 			cd->MEIStatus = MEI_CDROM_no_error;
-		}else  {
+		} else {
 			cd->XbusStatus |= CDST_ERRO;
 			cd->XbusStatus &= ~CDST_RDY;
 			cd->Poll |= POLST; //status is valid
@@ -493,7 +493,7 @@ void DoCommand(struct cdrom_Device *cd)
 			cd->XbusStatus |= CDST_RDY;
 			//CDMode[Command[1]]=Command[2];
 			//cd->Status[2] = CDMode[Command[1]];
-		}else  {
+		} else {
 			cd->XbusStatus |= CDST_ERRO;
 			cd->XbusStatus &= ~CDST_RDY;
 		}
@@ -530,7 +530,7 @@ void DoCommand(struct cdrom_Device *cd)
 			cd->MEIStatus = MEI_CDROM_no_error;
 
 
-		}else  {
+		} else {
 			cd->XbusStatus |= CDST_ERRO;
 			cd->XbusStatus &= ~CDST_RDY;
 			cd->StatusLen = 2;//CMD+status+DRVSTAT
@@ -588,7 +588,7 @@ void DoCommand(struct cdrom_Device *cd)
 			cd->Status[11] = cd->XbusStatus;
 			cd->Poll |= POLST;
 			cd->MEIStatus = MEI_CDROM_no_error;
-		}else  {
+		} else {
 			cd->XbusStatus |= CDST_ERRO;
 			cd->XbusStatus &= ~CDST_RDY;
 			cd->StatusLen = 2;//CMD+status+DRVSTAT
@@ -650,7 +650,7 @@ void DoCommand(struct cdrom_Device *cd)
 			cd->Status[11] = cd->XbusStatus;
 			cd->Poll |= POLST;
 			cd->MEIStatus = MEI_CDROM_no_error;
-		}else  {
+		} else {
 			cd->XbusStatus |= CDST_ERRO;
 			cd->XbusStatus &= ~CDST_RDY;
 			cd->StatusLen = 2;//CMD+status+DRVSTAT
@@ -693,7 +693,7 @@ void DoCommand(struct cdrom_Device *cd)
 			cd->Status[6] = cd->DISC.totalmsf[2];   //frames
 			cd->MEIStatus = MEI_CDROM_no_error;
 			cd->Status[7] = cd->XbusStatus;
-		}else  {
+		} else {
 			cd->StatusLen = 2;//6+1 + 1 for what?
 			cd->XbusStatus |= CDST_ERRO;
 			cd->MEIStatus = MEI_CDROM_recv_ecc;
@@ -735,7 +735,7 @@ void DoCommand(struct cdrom_Device *cd)
 			cd->MEIStatus = MEI_CDROM_no_error;
 			cd->Status[9] = cd->XbusStatus;
 
-		}else  {
+		} else {
 			cd->StatusLen = 2;
 			cd->XbusStatus |= CDST_ERRO;
 			cd->MEIStatus = MEI_CDROM_recv_ecc;
@@ -771,7 +771,7 @@ void DoCommand(struct cdrom_Device *cd)
 			cd->Status[7] = cd->XbusStatus;
 			cd->MEIStatus = MEI_CDROM_no_error;
 
-		}else  {
+		} else {
 			cd->StatusLen = 2;//CMD+status+DRVSTAT
 			cd->XbusStatus |= CDST_ERRO;
 			cd->Status[1] = cd->XbusStatus;
@@ -794,7 +794,7 @@ void DoCommand(struct cdrom_Device *cd)
 			cd->XbusStatus |= CDST_RDY;
 			//CDMode[Command[1]]=Command[2];
 			//			Status[2]=CDMode[Command[1]];
-		}else  {
+		} else {
 			cd->XbusStatus |= CDST_ERRO;
 			cd->XbusStatus |= CDST_RDY;
 		}
@@ -860,7 +860,7 @@ unsigned int GetDataFifo(struct cdrom_Device *cd)
 				_3do_Read2048(cd->Data);
 				cd->Requested--;
 				cd->DataLen = REQSIZE;
-			}else  {
+			} else {
 				cd->Poll &= ~POLDT;
 				cd->Requested = 0;
 				cd->DataLen = 0;
@@ -998,7 +998,7 @@ unsigned int GedWord(struct cdrom_Device *cd)
 				cd->Poll &= ~POLDT;
 				cd->DataLen = 0;
 			}
-		}else  {
+		} else {
 			//DataLen-=4;
 			{
 				memmove(cd->Data, cd->Data + 4, cd->DataLen - 4);

@@ -155,15 +155,15 @@ void  _qrz_PushARMCycles(uint32_t clks)
 		ARM_CLOCK = 0x2FAF080;
 	if (speedfixes > 0 && speedfixes < 0x186A1) {
 		/*sp=0x2DC6C0;*/ speedfixes--;
-	}else if (speedfixes > 0x186A1 && speedfixes < 0x30D41) {
+	} else if (speedfixes > 0x186A1 && speedfixes < 0x30D41) {
 		/*if(sdf==0)sp=0x4C4B40; */ speedfixes--;
-	}else if (speedfixes < 0) {
+	} else if (speedfixes < 0) {
 		sp = 0x3D0900;
 		speedfixes++;
-	}else if (speedfixes > 0x30D41) {
+	} else if (speedfixes > 0x30D41) {
 		/*sp=0x249F00;*/
 		speedfixes--;
-	}else if (speedfixes == 0x30D41 || speedfixes == 0x186A1)
+	} else if (speedfixes == 0x30D41 || speedfixes == 0x186A1)
 		speedfixes = 0;
 	if ((fixmode & FIX_BIT_TIMING_2) && sf <= 2500000) {
 		sp = 0; timers = 21000000;

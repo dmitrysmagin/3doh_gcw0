@@ -145,7 +145,7 @@ static INLINE void VDLExec(void)
 	if (tmp == 0) { // End of list
 		linedelay = 511;
 		doloadclut = false;
-	}else  {
+	} else {
 		CLUTDMA.raw = tmp;
 
 		if (CLUTDMA.dmaw.currover)
@@ -173,23 +173,23 @@ static INLINE void VDLExec(void)
 					CLUTR[coloridx] = (cmd & VDL_R_MASK) >> VDL_R_SHIFT;
 					CLUTG[coloridx] = (cmd & VDL_G_MASK) >> VDL_G_SHIFT;
 					CLUTB[coloridx] = (cmd & VDL_B_MASK) >> VDL_B_SHIFT;
-				}else if ((cmd & VDL_RGBCTL_MASK) == VDL_REDONLY)
+				} else if ((cmd & VDL_RGBCTL_MASK) == VDL_REDONLY)
 					CLUTR[coloridx] = (cmd & VDL_R_MASK) >> VDL_R_SHIFT;
 				else if ((cmd & VDL_RGBCTL_MASK) == VDL_GREENONLY)
 					CLUTG[coloridx] = (cmd & VDL_G_MASK) >> VDL_G_SHIFT;
 				else if ((cmd & VDL_RGBCTL_MASK) == VDL_BLUEONLY)
 					CLUTB[coloridx] = (cmd & VDL_B_MASK) >> VDL_B_SHIFT;
-			}else if ((cmd & 0xff000000) == VDL_BACKGROUND) {
+			} else if ((cmd & 0xff000000) == VDL_BACKGROUND) {
 				if (ifgnorflag) continue;
 				BACKGROUND = ((     cmd & 0xFF    ) << 16) |
 					     (( cmd & 0xFF00 )) |
 					     (((cmd >> 16) & 0xFF) );
-			}else if ((cmd & 0xE0000000) == 0xc0000000) {
+			} else if ((cmd & 0xE0000000) == 0xc0000000) {
 				if (ifgnorflag) continue;
 				OUTCONTROLL = cmd;
 
 				ifgnorflag = OUTCONTROLL & 2;
-			}else if ((uint32_t)cmd == 0xffffffff) {
+			} else if ((uint32_t)cmd == 0xffffffff) {
 				uint32_t j;
 				if (ifgnorflag)
 					continue;
@@ -244,7 +244,7 @@ void _vdl_DoLineNew(int line2x, struct VDLFrame *frame)
 					*dst2++ = *(uint16_t*)(src3++);
 					*dst2++ = *(uint16_t*)(src4++);
 				}
-			}else  {
+			} else {
 				uint16_t *dst;
 				uint32_t *src;
 				dst = frame->lines[y].line;
@@ -277,7 +277,7 @@ void _vdl_DoLineNew(int line2x, struct VDLFrame *frame)
 
 	if (!CLUTDMA.dmaw.prevtick) {
 		PREVIOUSBMP = CURRENTBMP;
-	}else  {
+	} else {
 		if (PREVIOUSBMP & 2)
 			PREVIOUSBMP += MODULO * 4 - 2;
 		else

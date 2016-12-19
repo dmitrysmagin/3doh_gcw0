@@ -74,7 +74,7 @@ void soundFillBuffer(unsigned int dspLoop)
 	if (audio_pointer <= buffer_size) {
 		memcpy(audio_buffer + audio_pointer, &dspLoop, 4);
 		audio_pointer += 4;
-	}else  {
+	} else {
 		audio_pointer = 0;
 	}
 

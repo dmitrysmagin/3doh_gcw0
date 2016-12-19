@@ -33,11 +33,11 @@ void Get_Frame_Bitmap(struct VDLFrame* sourceFrame, void* destinationBitmap, int
 				*destPtr++ = (uint8_t)(linePtr->xBACKGROUND & 0x1F);
 				*destPtr++ = (uint8_t)((linePtr->xBACKGROUND >> 5) & 0x1F);
 				*destPtr++ = (uint8_t)((linePtr->xBACKGROUND >> 10) & 0x1F);
-			}else if (allowFixedClut && (*srcPtr & 0x8000) > 0) {
+			} else if (allowFixedClut && (*srcPtr & 0x8000) > 0) {
 				*destPtr++ = FIXED_CLUTB[(*srcPtr) & 0x1F];
 				*destPtr++ = FIXED_CLUTG[((*srcPtr) >> 5) & 0x1F];
 				*destPtr++ = FIXED_CLUTR[(*srcPtr) >> 10 & 0x1F];
-			}else  {
+			} else {
 				*destPtr++ = (uint8_t)(linePtr->xCLUTB[(*srcPtr) & 0x1F]);
 				*destPtr++ = linePtr->xCLUTG[((*srcPtr) >> 5) & 0x1F];
 				*destPtr++ = linePtr->xCLUTR[(*srcPtr) >> 10 & 0x1F];

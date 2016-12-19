@@ -139,15 +139,15 @@ int _clio_Poke(uint32_t addr, uint32_t val)
 				cregs[0x40] |= 0x80000000;
 			//if(cregs[0x40]&cregs[0x48]) _arm_SetFIQ();
 			return 0;
-		}else if (addr == 0x44) {
+		} else if (addr == 0x44) {
 			cregs[0x40] &= ~val;
 			if (!cregs[0x60]) cregs[0x40] &= ~0x80000000;
 			return 0;
-		}else if (addr == 0x48) {
+		} else if (addr == 0x48) {
 			cregs[0x48] |= val;
 			//if(cregs[0x40]&cregs[0x48]) _arm_SetFIQ();
 			return 0;
-		}else if (addr == 0x4c) {
+		} else if (addr == 0x4c) {
 			cregs[0x48] &= ~val;
 			cregs[0x48] |= 0x80000000; // always one for irq31
 			return 0;
@@ -156,7 +156,7 @@ int _clio_Poke(uint32_t addr, uint32_t val)
 		else if (addr == 0x50) {
 			cregs[0x50] |= val & 0x3fff0000;
 			return 0;
-		}else if (addr == 0x54) {
+		} else if (addr == 0x54) {
 			cregs[0x50] &= ~val;
 			return 0;
 		}
@@ -166,23 +166,23 @@ int _clio_Poke(uint32_t addr, uint32_t val)
 			if (cregs[0x60]) cregs[0x40] |= 0x80000000;
 			//if(cregs[0x60]&cregs[0x68])	_arm_SetFIQ();
 			return 0;
-		}else if (addr == 0x64) {
+		} else if (addr == 0x64) {
 			cregs[0x60] &= ~val;
 			if (!cregs[0x60]) cregs[0x40] &= ~0x80000000;
 			return 0;
-		}else if (addr == 0x68) {
+		} else if (addr == 0x68) {
 			cregs[0x68] |= val;
 			//if(cregs[0x60]&cregs[0x68]) _arm_SetFIQ();
 			return 0;
-		}else if (addr == 0x6c) {
+		} else if (addr == 0x6c) {
 			cregs[0x68] &= ~val;
 			return 0;
 		}
-	}else if (addr == 0x84) {
+	} else if (addr == 0x84) {
 		cregs[0x84] = val & 0xf;
 		SelectROM((val & 4) ? 1 : 0 );
 		return 0;
-	}else if (addr == 0x300) {
+	} else if (addr == 0x300) {
 		//clear down the fifos and stop them
 		base = 0;
 		cregs[0x304] &= ~val;
@@ -221,38 +221,38 @@ int _clio_Poke(uint32_t addr, uint32_t val)
 
 
 		return 0;
-	}else if (addr == 0x304) { // Dma Starter!!!!! P/A !!!! need to create Handler.
+	} else if (addr == 0x304) { // Dma Starter!!!!! P/A !!!! need to create Handler.
 		HandleDMA(val);
 		return 0;
-	}else if (addr == 0x308) { //Dma Stopper!!!!
+	} else if (addr == 0x308) { //Dma Stopper!!!!
 		cregs[0x304] &= ~val;
 		return 0;
-	}else if (addr == 0x400) { //XBUS direction
+	} else if (addr == 0x400) { //XBUS direction
 		if (val & 0x800)
 			return 0;
 
 		cregs[0x400] = val;
 		return 0;
-	}else if ((addr >= 0x500) && (addr < 0x540)) {
+	} else if ((addr >= 0x500) && (addr < 0x540)) {
 		_xbus_SetSEL(val);
 
 		return 0;
-	}else if ((addr >= 0x540) && (addr < 0x580)) {
+	} else if ((addr >= 0x540) && (addr < 0x580)) {
 		_xbus_SetPoll(val);
 		return 0;
-	}else if ((addr >= 0x580) && (addr < 0x5c0)) {
+	} else if ((addr >= 0x580) && (addr < 0x5c0)) {
 		_xbus_SetCommandFIFO(val); // on FIFO Filled execute the command
 		return 0;
-	}else if ((addr >= 0x5c0) && (addr < 0x600)) {
+	} else if ((addr >= 0x5c0) && (addr < 0x600)) {
 		_xbus_SetDataFIFO(val); // on FIFO Filled execute the command
 		return 0;
-	}else if (addr == 0x28) {
+	} else if (addr == 0x28) {
 		cregs[addr] = val;
 		if (val == 0x30)
 			return 1;
 		else
 			return 0;
-	}else if ((addr >= 0x1800) && (addr <= 0x1fff)) {//0x0340 1800 … 0x0340 1BFF && 0x0340 1C00 … 0x0340 1FFF
+	} else if ((addr >= 0x1800) && (addr <= 0x1fff)) {//0x0340 1800 … 0x0340 1BFF && 0x0340 1C00 … 0x0340 1FFF
 		addr &= ~0x400; //mirrors
 		DSPW1 = val >> 16;
 		DSPW2 = val & 0xffff;
@@ -261,13 +261,13 @@ int _clio_Poke(uint32_t addr, uint32_t val)
 		_dsp_WriteMemory(DSPA + 1, DSPW2);
 		return 0;
 		//DSPNRAMWrite 2 DSPW per 1ARMW
-	}else if ((addr >= 0x2000) && (addr <= 0x2fff)) {
+	} else if ((addr >= 0x2000) && (addr <= 0x2fff)) {
 		addr &= ~0x800;//mirrors
 		DSPW1 = val & 0xffff;
 		DSPA = (addr - 0x2000) >> 2;
 		_dsp_WriteMemory(DSPA, DSPW1);
 		return 0;
-	}else if ((addr >= 0x3000) && (addr <= 0x33ff)) { //0x0340 3000 … 0x0340 33FF
+	} else if ((addr >= 0x3000) && (addr <= 0x33ff)) { //0x0340 3000 … 0x0340 33FF
 		DSPA = (addr - 0x3000) >> 1;
 		DSPA &= 0xff;
 		DSPW1 = val >> 16;
@@ -275,42 +275,42 @@ int _clio_Poke(uint32_t addr, uint32_t val)
 		_dsp_WriteIMem(DSPA, DSPW1);
 		_dsp_WriteIMem(DSPA + 1, DSPW2);
 		return 0;
-	}else if ((addr >= 0x3400) && (addr <= 0x37ff)) {//0x0340 3400 … 0x0340 37FF
+	} else if ((addr >= 0x3400) && (addr <= 0x37ff)) {//0x0340 3400 … 0x0340 37FF
 		DSPA = (addr - 0x3400) >> 2;
 		DSPA &= 0xff;
 		DSPW1 = val & 0xffff;
 		_dsp_WriteIMem(DSPA, DSPW1);
 		return 0;
-	}else if (addr == 0x17E8) {//Reset
+	} else if (addr == 0x17E8) {//Reset
 		_dsp_Reset();
 		return 0;
-	}else if (addr == 0x17D0) {//Write DSP/ARM Semaphore
+	} else if (addr == 0x17D0) {//Write DSP/ARM Semaphore
 		_dsp_ARMwrite2sema4(val);
 		return 0;
-	}else if (addr == 0x17FC) {//start/stop
+	} else if (addr == 0x17FC) {//start/stop
 		_dsp_SetRunning(val > 0);
 		return 0;
-	}else if (addr == 0x200) {
+	} else if (addr == 0x200) {
 		cregs[0x200] |= val;
 		_clio_SetTimers(val, 0);
 		return 0;
-	}else if (addr == 0x204) {
+	} else if (addr == 0x204) {
 		cregs[0x200] &= ~val;
 		_clio_ClearTimers(val, 0);
 		return 0;
-	}else if (addr == 0x208) {
+	} else if (addr == 0x208) {
 		cregs[0x208] |= val;
 		_clio_SetTimers(0, val);
 		return 0;
-	}else if (addr == 0x20c) {
+	} else if (addr == 0x20c) {
 		cregs[0x208] &= ~val;
 		_clio_ClearTimers(0, val);
 		return 0;
-	}else if (addr == 0x220) {
+	} else if (addr == 0x220) {
 		//if(val<64)val=64;
 		cregs[addr] = val & 0x3ff;
 		return 0;
-	}else if (addr >= 0x100 && addr <= 0x7c) {
+	} else if (addr >= 0x100 && addr <= 0x7c) {
 		cregs[addr] = val & 0xffff;
 		return 0;
 	}
@@ -337,7 +337,7 @@ uint32_t _clio_Peek(uint32_t addr)
 		else if (addr == 0x68)
 			return cregs[0x68];
 		return 0; // for skip warning C4715
-	}else if (addr == 0x204)
+	} else if (addr == 0x204)
 		return cregs[0x200];
 	else if (addr == 0x20c)
 		return cregs[0x208];
@@ -349,7 +349,7 @@ uint32_t _clio_Peek(uint32_t addr)
 		return _xbus_GetRes();
 	else if ((addr >= 0x540) && (addr < 0x580)) {
 		return _xbus_GetPoll();
-	}else if ((addr >= 0x580) && (addr < 0x5c0))
+	} else if ((addr >= 0x580) && (addr < 0x5c0))
 		return _xbus_GetStatusFIFO();
 	else if ((addr >= 0x5c0) && (addr < 0x600))
 		return _xbus_GetDataFIFO();
@@ -363,12 +363,12 @@ uint32_t _clio_Peek(uint32_t addr)
 		DSPW1 = _dsp_ReadIMem(DSPA);
 		DSPW2 = _dsp_ReadIMem(DSPA + 1);
 		return ((DSPW1 << 16) | DSPW2);
-	}else if ((addr >= 0x3c00) && (addr <= 0x3fff)) {//0x0340 3C00 … 0x0340 3FFF
+	} else if ((addr >= 0x3c00) && (addr <= 0x3fff)) {//0x0340 3C00 … 0x0340 3FFF
 		DSPA = (addr - 0x3c00) >> 2;
 		DSPA &= 0xff;
 		DSPA += 0x300;
 		return (_dsp_ReadIMem(DSPA));
-	}else if (addr == 0x17F0)
+	} else if (addr == 0x17F0)
 		return fastrand();
 	else if (addr == 0x17D0) //Read DSP/ARM Semaphore
 		return _dsp_ARMread2sema4();
@@ -417,7 +417,7 @@ void _clio_DoTimers(void)
 				if (flag & RELOAD) { // reload timer by reload value
 					counter = cregs[0x100 + timer * 8 + 4];
 					//return;
-				}else  {// timer stopped -> reset it's flag DECREMENT
+				} else {// timer stopped -> reset it's flag DECREMENT
 					cregs[(timer < 8) ? 0x200 : 0x208] &= ~( DECREMENT << ((timer * 4) & 31) );
 				}
 			}
@@ -474,7 +474,7 @@ void HandleDMA(uint32_t val)
 			}
 			cregs[0x400] |= 0x80;
 
-		}else  {
+		} else {
 			while (len >= 0) {
 				b3 = _xbus_GetDataFIFO();
 				b2 = _xbus_GetDataFIFO();
@@ -540,7 +540,7 @@ uint16_t  _clio_EIFIFO(uint16_t channel)
 			val = _mem_read16( ((FIFOI[channel].StartAdr + PTRI[channel]) ^ 2) );
 #endif
 			PTRI[channel] += 2;
-		}else  {
+		} else {
 			PTRI[channel] = 0;
 			_clio_GenerateFiq(1 << (channel + 16), 0);//generate fiq
 			if (FIFOI[channel].NextAdr != 0) {// reload enabled see patent WO09410641A1, 49.16
@@ -552,7 +552,7 @@ uint16_t  _clio_EIFIFO(uint16_t channel)
 				val = _mem_read16(((FIFOI[channel].StartAdr + PTRI[channel]) ^ 2));     //get the value!!!
 #endif
 				PTRI[channel] += 2;
-			}else  {
+			} else {
 				FIFOI[channel].StartAdr = 0;
 				val = 0;
 			}
@@ -582,7 +582,7 @@ void  _clio_EOFIFO(uint16_t channel, uint16_t val)
 		_mem_write16(((FIFOO[channel].StartAdr + PTRO[channel]) ^ 2), val);
 #endif
 		PTRO[channel] += 2;
-	}else  {
+	} else {
 		PTRO[channel] = 0;
 		_clio_GenerateFiq(1 << (channel + 12), 0);//generate fiq
 
@@ -644,7 +644,7 @@ void _clio_SetFIFO(uint32_t adr, uint32_t val)
 				FIFOI[(adr >> 4) & 0xf].NextLen = 0;
 			break;
 		}
-	}else  {
+	} else {
 		switch (adr & 0xf) {
 		case 0:
 			FIFOO[(adr >> 4) & 0xf].StartAdr = val;
