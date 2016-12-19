@@ -162,7 +162,11 @@ int main(int argc, char *argv[])
 {
 	char home[128];
 
+#ifndef _WIN32
 	snprintf(home, sizeof(home), "%s/.3doh", getenv("HOME"));
+#else
+	strcpy(home, ".3doh");
+#endif
 	if (access( home, F_OK ) == -1) {
 		printf("Creating home directory...\n");
 		printf("Put your bios there\n");
@@ -174,9 +178,14 @@ int main(int argc, char *argv[])
 		return(0);
 	}
 
+#ifndef _WIN32
 	snprintf(biosFile, sizeof(biosFile), "%s/.3doh/bios.bin", getenv("HOME"));
 	//snprintf(configFile, sizeof(configFile), "%s/.3doh/config.ini", getenv("HOME"));
 	snprintf(imageFile, sizeof(imageFile), argv[1]);
+#else
+	strcpy(biosFile, ".3doh/bios.bin");
+	strcpy(imageFile, argv[1]);
+#endif
 
 	fsInit();
 	/*readConfiguration(configFile);*/
