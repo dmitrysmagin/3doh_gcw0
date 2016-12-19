@@ -1217,39 +1217,55 @@ void arm60_BRANCH(unsigned long cmd)
 
 }
 
+/* Rd = Rm * Rs [+ Rn]*/
 void arm60_MULT(unsigned long cmd)
 {
+	unsigned int Rd, Rn, Rs, Rm, A, S;
 	unsigned int res;
 
-	res = ((calcbits(RON_USER[(cmd >> 8) & 0xf]) + 5) >> 1) - 1;
+	A = cmd & (1 << 21);
+	S = cmd & (1 << 20);
+	Rd = (cmd >> 16) & 0xf;
+	Rn = (cmd >> 12) & 0xf;
+	Rs = (cmd >> 8) & 0xf;
+	Rm = cmd & 0xf;
+
+	res = ((calcbits(RON_USER[Rs]) + 5) >> 1) - 1;
 	if (res > 16)
 		CYCLES -= 16;
 	else
 		CYCLES -= res;
 
-	if (((cmd >> 16) & 0xf) == (cmd & 0xf)) {
-		if (cmd & (1 << 21)) {
+#if 1
+	res = RON_USER[Rm] * RON_USER[Rs];
+	if (A)
+		res += RON_USER[Rn];
+#else
+	// FIXME: Check why this
+	if (Rd == Rm) {
+		if (A) {
 			REG_PC += 8;
-			res = RON_USER[(cmd >> 12) & 0xf];
+			res = RON_USER[Rn];
 			REG_PC -= 8;
 		} else {
 			res = 0;
 		}
 	} else {
-		if (cmd & (1 << 21)) {
-			res = RON_USER[cmd & 0xf] * RON_USER[(cmd >> 8) & 0xf];
+		if (A) {
+			res = RON_USER[Rm] * RON_USER[Rs];
 			REG_PC += 8;
-			res += RON_USER[(cmd >> 12) & 0xf];
+			res += RON_USER[Rn];
 			REG_PC -= 8;
 		} else
-			res = RON_USER[cmd & 0xf] * RON_USER[(cmd >> 8) & 0xf];
+			res = RON_USER[Rm] * RON_USER[Rs];
 	}
+#endif
 
-	if (cmd & (1 << 20)) {
+	if (S) {
 		ARM_SET_ZN(res);
 	}
 
-	RON_USER[(cmd >> 16) & 0xf] = res;
+	RON_USER[Rd] = res;
 }
 
 void arm60_SDT(unsigned long cmd)
