@@ -554,7 +554,7 @@ static INLINE void SETF(bool a)
 
 #define ROTR(val, shift) ((shift)) ? (((val) >> (shift)) | ((val) << (32 - (shift)))) : (val)
 
-static inline unsigned long _rotr(unsigned long val, unsigned long shift)
+static inline unsigned long __rotr(unsigned long val, unsigned long shift)
 {
 	if (!shift) return val;
 	return (val >> shift) | (val << (32 - shift));
@@ -1317,7 +1317,7 @@ void arm60_SDT(unsigned long cmd)
 		} else {                               //words/halfwords
 			val = mreadw(tbas);
 			rora = tbas & 3;
-			if ((rora)) val = _rotr(val, rora * 8);
+			if ((rora)) val = __rotr(val, rora * 8);
 		}
 
 		if (((cmd >> 12) & 0xf) == 0xf) {
@@ -1378,7 +1378,7 @@ void arm60_ALU(unsigned long cmd)
 	if (cmd & (1 << 25)) {
 		op2 = cmd & 0xff;
 		if (((cmd >> 7) & 0x1e)) {
-			op2 = _rotr(op2, (cmd >> 7) & 0x1e);
+			op2 = __rotr(op2, (cmd >> 7) & 0x1e);
 		}
 		op1 = RON_USER[(cmd >> 16) & 0xf];
 	} else {

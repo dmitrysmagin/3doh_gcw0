@@ -1,28 +1,30 @@
 CC = gcc
 TARGET = 3doh
-CFLAGS = -O0 -g -Wall $(SDL_CFLAGS) -I./ -I./freedo -I./freedo/filters  $(shell sdl-config --cflags)
+CFLAGS = -march=native -O2 -g -Wall -Wextra
+CFLAGS += -Isrc -Isrc/freedo
 LDFLAGS= -lSDL -lm
 
-OBJS = freedo/arm.o \
-freedo/DiagPort.o\
-freedo/quarz.o\
-freedo/Clio.o \
-freedo/frame.o \
-freedo/Madam.o \
-freedo/vdlp.o \
-freedo/_3do_sys.o \
-freedo/bitop.o \
-freedo/DSP.o \
-freedo/Iso.o \
-freedo/SPORT.o \
-freedo/XBUS.o \
-video/sdl/video.o \
-sound/sdl/sound.o \
-fs/linux/cdrom.o \
-timer/linux/timer.o \
-input/sdl/input.o \
-config.o \
-main.o
+OBJS = \
+	src/freedo/arm.o \
+	src/freedo/DiagPort.o\
+	src/freedo/quarz.o\
+	src/freedo/Clio.o \
+	src/freedo/frame.o \
+	src/freedo/Madam.o \
+	src/freedo/vdlp.o \
+	src/freedo/_3do_sys.o \
+	src/freedo/bitop.o \
+	src/freedo/DSP.o \
+	src/freedo/Iso.o \
+	src/freedo/SPORT.o \
+	src/freedo/XBUS.o \
+	src/video.o \
+	src/sound.o \
+	src/cdrom.o \
+	src/timer.o \
+	src/input.o \
+	src/config.o \
+	src/main.o
 
 all: $(TARGET)
 

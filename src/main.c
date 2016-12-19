@@ -157,7 +157,7 @@ void readConfiguration(char* config)
 	configClose();
 }
 
-
+#undef main
 int main(int argc, char *argv[])
 {
 	char home[128];
@@ -166,7 +166,11 @@ int main(int argc, char *argv[])
 	if (access( home, F_OK ) == -1) {
 		printf("Creating home directory...\n");
 		printf("Put your bios there\n");
-		mkdir(home, 0755);
+		mkdir(home
+#ifndef _WIN32
+		, 0755
+#endif
+		);
 		return(0);
 	}
 
