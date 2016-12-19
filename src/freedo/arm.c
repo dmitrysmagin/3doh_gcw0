@@ -1243,21 +1243,27 @@ void arm60_COPRO(unsigned long cmd)
 	CYCLES -= SCYCLE + NCYCLE;
 }
 
-
+/* Rd = op1 operation op2 [operation2 op3] */
 void arm60_ALU(unsigned long cmd)
 {
+	uint32_t Rn, Rd, S, I;
 	unsigned char shift, shtype;
 	unsigned long op2, op1, pc_tmp;
+
+	I = cmd & (1 << 25); // 0 - op2 is shift+reg, 1 - op2 is rotate+imm8
+	S = cmd & (1 << 20);
+	Rn = (cmd >> 16) & 0xf;
+	Rd = (cmd >> 12) & 0xf;
 
 	/////////////////////////////////////////////SHIFT
 	pc_tmp = REG_PC;
 	REG_PC += 4;
-	if (cmd & (1 << 25)) {
+	if (I) {
 		op2 = cmd & 0xff;
 		if (((cmd >> 7) & 0x1e)) {
 			op2 = __rotr(op2, (cmd >> 7) & 0x1e);
 		}
-		op1 = RON_USER[(cmd >> 16) & 0xf];
+		op1 = RON_USER[Rn];
 	} else {
 		shtype = (cmd >> 5) & 0x3;
 		if (cmd & (1 << 4)) {
@@ -1265,7 +1271,7 @@ void arm60_ALU(unsigned long cmd)
 			shift = (RON_USER[shift]) & 0xff;
 			REG_PC += 4;
 			op2 = RON_USER[cmd & 0xf];
-			op1 = RON_USER[(cmd >> 16) & 0xf];
+			op1 = RON_USER[Rn];
 			CYCLES -= ICYCLE;
 		} else {
 			shift = (cmd >> 7) & 0x1f;
@@ -1277,47 +1283,47 @@ void arm60_ALU(unsigned long cmd)
 				}
 			}
 			op2 = RON_USER[cmd & 0xf];
-			op1 = RON_USER[(cmd >> 16) & 0xf];
+			op1 = RON_USER[Rn];
 		}
 		op2 = ARM_SHIFT_NSC(op2, shift, shtype);
 	}
 
 	REG_PC = pc_tmp;
 
-	if ((cmd & (1 << 20)) && is_logic[((cmd >> 21) & 0xf)])
+	if (S && is_logic[((cmd >> 21) & 0xf)])
 		ARM_SET_C(carry_out);
 
 	switch ((cmd >> 20) & 0x1f) {
 	case 0:
-		RON_USER[(cmd >> 12) & 0xf] = op1 & op2;
+		RON_USER[Rd] = op1 & op2;
 		break;
 	case 2:
-		RON_USER[(cmd >> 12) & 0xf] = op1 ^ op2;
+		RON_USER[Rd] = op1 ^ op2;
 		break;
 	case 4:
-		RON_USER[(cmd >> 12) & 0xf] = op1 - op2;
+		RON_USER[Rd] = op1 - op2;
 		break;
 	case 6:
-		RON_USER[(cmd >> 12) & 0xf] = op2 - op1;
+		RON_USER[Rd] = op2 - op1;
 		break;
 	case 8:
-		RON_USER[(cmd >> 12) & 0xf] = op1 + op2;
+		RON_USER[Rd] = op1 + op2;
 		break;
 	case 10:
-		RON_USER[(cmd >> 12) & 0xf] = op1 + op2 + ARM_GET_C;
+		RON_USER[Rd] = op1 + op2 + ARM_GET_C;
 		break;
 	case 12:
-		RON_USER[(cmd >> 12) & 0xf] = op1 - op2 - (ARM_GET_C ^ 1);
+		RON_USER[Rd] = op1 - op2 - (ARM_GET_C ^ 1);
 		break;
 	case 14:
-		RON_USER[(cmd >> 12) & 0xf] = op2 - op1 - (ARM_GET_C ^ 1);
+		RON_USER[Rd] = op2 - op1 - (ARM_GET_C ^ 1);
 		break;
 	case 16:
 	case 20:
 		if ((cmd >> 22) & 1)
-			RON_USER[(cmd >> 12) & 0xf] = SPSR[arm_mode_table[CPSR & 0x1f]];
+			RON_USER[Rd] = SPSR[arm_mode_table[CPSR & 0x1f]];
 		else
-			RON_USER[(cmd >> 12) & 0xf] = CPSR;
+			RON_USER[Rd] = CPSR;
 
 		return;
 	case 18:
@@ -1335,55 +1341,55 @@ void arm60_ALU(unsigned long cmd)
 		}
 		return;
 	case 24:
-		RON_USER[(cmd >> 12) & 0xf] = op1 | op2;
+		RON_USER[Rd] = op1 | op2;
 		break;
 	case 26:
-		RON_USER[(cmd >> 12) & 0xf] = op2;
+		RON_USER[Rd] = op2;
 		break;
 	case 28:
-		RON_USER[(cmd >> 12) & 0xf] = op1 & (~op2);
+		RON_USER[Rd] = op1 & (~op2);
 		break;
 	case 30:
-		RON_USER[(cmd >> 12) & 0xf] = ~op2;
+		RON_USER[Rd] = ~op2;
 		break;
 	case 1:
-		RON_USER[(cmd >> 12) & 0xf] = op1 & op2;
-		ARM_SET_ZN(RON_USER[(cmd >> 12) & 0xf]);
+		RON_USER[Rd] = op1 & op2;
+		ARM_SET_ZN(RON_USER[Rd]);
 		break;
 	case 3:
-		RON_USER[(cmd >> 12) & 0xf] = op1 ^ op2;
-		ARM_SET_ZN(RON_USER[(cmd >> 12) & 0xf]);
+		RON_USER[Rd] = op1 ^ op2;
+		ARM_SET_ZN(RON_USER[Rd]);
 		break;
 	case 5:
-		RON_USER[(cmd >> 12) & 0xf] = op1 - op2;
-		ARM_SET_ZN(RON_USER[(cmd >> 12) & 0xf]);
-		ARM_SET_CV_sub(RON_USER[(cmd >> 12) & 0xf], op1, op2);
+		RON_USER[Rd] = op1 - op2;
+		ARM_SET_ZN(RON_USER[Rd]);
+		ARM_SET_CV_sub(RON_USER[Rd], op1, op2);
 		break;
 	case 7:
-		RON_USER[(cmd >> 12) & 0xf] = op2 - op1;
-		ARM_SET_ZN(RON_USER[(cmd >> 12) & 0xf]);
-		ARM_SET_CV_sub(RON_USER[(cmd >> 12) & 0xf], op2, op1);
+		RON_USER[Rd] = op2 - op1;
+		ARM_SET_ZN(RON_USER[Rd]);
+		ARM_SET_CV_sub(RON_USER[Rd], op2, op1);
 		break;
 	case 9:
-		RON_USER[(cmd >> 12) & 0xf] = op1 + op2;
-		ARM_SET_ZN(RON_USER[(cmd >> 12) & 0xf]);
-		ARM_SET_CV(RON_USER[(cmd >> 12) & 0xf], op1, op2);
+		RON_USER[Rd] = op1 + op2;
+		ARM_SET_ZN(RON_USER[Rd]);
+		ARM_SET_CV(RON_USER[Rd], op1, op2);
 		break;
 	case 11:
-		RON_USER[(cmd >> 12) & 0xf] = op1 + op2 + ARM_GET_C;
-		ARM_SET_ZN(RON_USER[(cmd >> 12) & 0xf]);
-		ARM_SET_CV(RON_USER[(cmd >> 12) & 0xf], op1, op2);
+		RON_USER[Rd] = op1 + op2 + ARM_GET_C;
+		ARM_SET_ZN(RON_USER[Rd]);
+		ARM_SET_CV(RON_USER[Rd], op1, op2);
 		break;
 	case 13:
-		RON_USER[(cmd >> 12) & 0xf] = op1 - op2 - (ARM_GET_C ^ 1);
-		ARM_SET_ZN(RON_USER[(cmd >> 12) & 0xf]);
-		ARM_SET_CV_sub(RON_USER[(cmd >> 12) & 0xf], op1, op2);
+		RON_USER[Rd] = op1 - op2 - (ARM_GET_C ^ 1);
+		ARM_SET_ZN(RON_USER[Rd]);
+		ARM_SET_CV_sub(RON_USER[Rd], op1, op2);
 		break;
 	case 15:
-		RON_USER[(cmd >> 12) & 0xf] = op2 - op1 - (ARM_GET_C ^ 1);
-		ARM_SET_ZN(RON_USER[(cmd >> 12) & 0xf]);
-		ARM_SET_CV_sub(RON_USER[(cmd >> 12) & 0xf], op2, op1);
-		break;                                                                        //*/
+		RON_USER[Rd] = op2 - op1 - (ARM_GET_C ^ 1);
+		ARM_SET_ZN(RON_USER[Rd]);
+		ARM_SET_CV_sub(RON_USER[Rd], op2, op1);
+		break;
 	case 17:
 		op1 &= op2;
 		ARM_SET_ZN(op1);
@@ -1401,25 +1407,25 @@ void arm60_ALU(unsigned long cmd)
 		ARM_SET_ZN(op1 + op2);
 		return;
 	case 25:
-		RON_USER[(cmd >> 12) & 0xf] = op1 | op2;
-		ARM_SET_ZN(RON_USER[(cmd >> 12) & 0xf]);
+		RON_USER[Rd] = op1 | op2;
+		ARM_SET_ZN(RON_USER[Rd]);
 		break;
 	case 27:
-		RON_USER[(cmd >> 12) & 0xf] = op2;
-		ARM_SET_ZN(RON_USER[(cmd >> 12) & 0xf]);
+		RON_USER[Rd] = op2;
+		ARM_SET_ZN(RON_USER[Rd]);
 		break;
 	case 29:
-		RON_USER[(cmd >> 12) & 0xf] = op1 & (~op2);
-		ARM_SET_ZN(RON_USER[(cmd >> 12) & 0xf]);
+		RON_USER[Rd] = op1 & (~op2);
+		ARM_SET_ZN(RON_USER[Rd]);
 		break;
 	case 31:
-		RON_USER[(cmd >> 12) & 0xf] = ~op2;
-		ARM_SET_ZN(RON_USER[(cmd >> 12) & 0xf]);
+		RON_USER[Rd] = ~op2;
+		ARM_SET_ZN(RON_USER[Rd]);
 		break;
 	}
 
-	if (((cmd >> 12) & 0xf) == 0xf) { //destination = pc, take care of cpsr
-		if (cmd & (1 << 20)) {
+	if (Rd == 0xf) { //destination = pc, take care of cpsr
+		if (S) {
 			_arm_SetCPSR(SPSR[arm_mode_table[MODE]]);
 		}
 		CYCLES -= ICYCLE + NCYCLE;
@@ -1428,7 +1434,7 @@ void arm60_ALU(unsigned long cmd)
 
 int _arm_Execute(void)
 {
-	unsigned long cmd, pc_tmp, cmd_tmp;
+	unsigned long cmd;
 
 	cmd = mreadw(REG_PC);
 
@@ -1441,10 +1447,8 @@ int _arm_Execute(void)
 	curr_pc = REG_PC;
 	REG_PC += 4;
 	CYCLES = -SCYCLE;
-	//if(MAS_Access_Exept)
 
 	if (((cond_flags_cross[((cmd) >> 28)] >> ((CPSR) >> 28)) & 1)) {
-
 		if ((cmd & 0x0fc000f0) == 0x00000090) {          /* Multiplication */
 			arm60_MULT(cmd);
 			//printf("%x\n",cmd);
