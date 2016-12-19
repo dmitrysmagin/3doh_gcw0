@@ -1533,7 +1533,8 @@ void _mem_write8(uint32_t addr, uint8_t val)
 	pRam[addr + 2 * 1024 * 1024] = val;
 	pRam[addr + 3 * 1024 * 1024] = val;
 }
-void  _mem_write16(uint32_t addr, uint16_t val)
+
+void _mem_write16(uint32_t addr, uint16_t val)
 {
 	*((uint16_t*)&pRam[addr]) = val;
 	if (addr < 0x200000 || !HightResMode)
@@ -1542,6 +1543,7 @@ void  _mem_write16(uint32_t addr, uint16_t val)
 	*((uint16_t*)&pRam[addr + 2 * 1024 * 1024]) = val;
 	*((uint16_t*)&pRam[addr + 3 * 1024 * 1024]) = val;
 }
+
 void _mem_write32(uint32_t addr, uint32_t val)
 {
 	*((uint32_t*)&pRam[addr]) = val;
@@ -1562,11 +1564,10 @@ uint32_t _mem_read32(uint32_t addr)
 	return *((uint32_t*)&pRam[addr]);
 }
 
-INLINE uint8_t _mem_read8(uint32_t addr)
+uint8_t _mem_read8(uint32_t addr)
 {
 	return pRam[addr];
 }
-
 
 void mwritew(uint32_t addr, uint32_t val)
 {

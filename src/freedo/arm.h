@@ -42,11 +42,11 @@ uint8_t *_arm_Init(void);
 
 //for mas
 void _mem_write8(unsigned int addr, uint8_t val);
-void  _mem_write16(unsigned int addr, uint16_t val);
-void _mem_write32(unsigned int addr, unsigned int val);
-INLINE uint8_t  _mem_read8(unsigned int addr);
+void _mem_write16(unsigned int addr, uint16_t val);
+void _mem_write32(unsigned int addr, uint32_t val);
+uint8_t  _mem_read8(unsigned int addr);
 uint16_t _mem_read16(unsigned int addr);
-unsigned int  _mem_read32(unsigned int addr);
+uint32_t _mem_read32(unsigned int addr);
 
 void WriteIO(unsigned int addr, unsigned int val);
 unsigned int ReadIO(unsigned int addr);
