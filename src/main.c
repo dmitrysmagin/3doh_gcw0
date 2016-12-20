@@ -120,7 +120,7 @@ void * emuinterface(int procedure, void *datum)
 		return (void*)fsReadDiscSize();
 		break;
 	case EXT_ON_SECTOR:
-		onsector = *((int*)datum);
+		onsector = *((int*)&datum);
 		break;
 	case EXT_READ_NVRAM:
 		readNvRam(datum);
@@ -128,7 +128,7 @@ void * emuinterface(int procedure, void *datum)
 	case EXT_WRITE_NVRAM:
 		break;
 	case EXT_PUSH_SAMPLE:
-		soundFillBuffer(*((unsigned int*)datum));
+		soundFillBuffer(*((unsigned int*)&datum));
 		count_samples++;
 		break;
 	case EXT_SWAPFRAME:
