@@ -757,7 +757,7 @@ void  _dsp_WriteMemory(uint16_t addr, uint16_t val) //CPU writes NMEM of DSP
 
 uint16_t  RegBase(unsigned int reg)
 {
-	uint8_t twi, x, y;
+	uint8_t twi = 0, x, y;
 
 	reg &= 0xf;
 	x    = (reg >> 2) & 1;

@@ -1230,7 +1230,7 @@ void arm60_SDT(unsigned long cmd)
 	}
 }
 
-void arm60_COPRO(unsigned long cmd)
+void arm60_COPRO(/*unsigned long cmd*/)
 {
 
 	SPSR[arm_mode_table[0x1b]] = CPSR;
@@ -1468,7 +1468,7 @@ int _arm_Execute(void)
 		} else if ((cmd & 0x0f000000) == 0x0e000000) {        /* Coprocessor */
 			//HandleCoPro(cpustate, insn);
 			//R15 += 4;
-			arm60_COPRO(cmd);
+			arm60_COPRO(/*cmd*/);
 		} else if ((cmd & 0x0f000000) == 0x0f000000) {        /* Software interrupt */
 			decode_swi(cmd);
 		} else {     /* Undefined */

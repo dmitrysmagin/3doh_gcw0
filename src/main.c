@@ -50,9 +50,9 @@ uint32 ReverseBytes(uint32 value)
 
 void readNvRam(void *pnvram)
 {
-	FILE* bios1;
-	long fsize;
-	char *buffer;
+	/*FILE* bios1;*/
+	/*long fsize;*/
+	/*char *buffer;*/
 	NvRamStr *nvramStruct;
 
 	nvramStruct = (NvRamStr*)pnvram;
@@ -90,7 +90,7 @@ void readNvRam(void *pnvram)
 	for (x = 1; x < 8; x++)
 		nvramStruct->rootDirCopies[x] = 0;
 
-	int w = sizeof(NvRamStr) / 4;
+	/*int w = sizeof(NvRamStr) / 4;*/
 }
 
 
@@ -107,7 +107,7 @@ void *swapFrame(void *curr_frame)
 
 void * emuinterface(int procedure, void *datum)
 {
-	typedef void *(*func_type)(void);
+	/*typedef void *(*func_type)(void);*/
 
 	switch (procedure) {
 	case EXT_READ_ROMS:
@@ -120,7 +120,7 @@ void * emuinterface(int procedure, void *datum)
 		return (void*)fsReadDiscSize();
 		break;
 	case EXT_ON_SECTOR:
-		onsector = *((int*)&datum);
+		onsector = *((int*)datum);
 		break;
 	case EXT_READ_NVRAM:
 		readNvRam(datum);
@@ -128,7 +128,7 @@ void * emuinterface(int procedure, void *datum)
 	case EXT_WRITE_NVRAM:
 		break;
 	case EXT_PUSH_SAMPLE:
-		soundFillBuffer(*((unsigned int*)&datum));
+		soundFillBuffer(*((unsigned int*)datum));
 		count_samples++;
 		break;
 	case EXT_SWAPFRAME:
@@ -160,6 +160,7 @@ void readConfiguration(char* config)
 #undef main
 int main(int argc, char *argv[])
 {
+	(void)argc;
 	char home[128];
 
 #ifndef _WIN32
@@ -208,7 +209,7 @@ int initEmu()
 	int waitfps;
 
 	io_interface = &emuinterface;
-	fd_interface = &_freedo_Interface;
+	fd_interface = (_ext_Interface)&_freedo_Interface;
 	videoInit();
 	soundInit();
 	inputInit();

@@ -40,6 +40,7 @@ void fsReadBios(char *biosFile, void *prom)
 	rewind(bios1);
 
 	readcount = fread(prom, 1, fsize, bios1);
+	(void)readcount;
 	fclose(bios1);
 }
 
@@ -82,7 +83,7 @@ char *fsReadSize()
 unsigned int fsReadDiscSize()
 {
 	unsigned int size;
-	char sectorZero[2048];
+	/*char sectorZero[2048];*/
 	unsigned int temp;
 	char *ssize;
 

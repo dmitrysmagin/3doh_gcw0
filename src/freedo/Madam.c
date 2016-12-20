@@ -482,8 +482,6 @@ unsigned int eor;
 int calcx;
 int nrows;
 
-unsigned int pix;
-
 uint16_t ttt;
 
 unsigned int OFF;
@@ -1316,7 +1314,6 @@ unsigned int  PPROJ_OUTPUT(unsigned int pdec_output, unsigned int pproc_output, 
 			VHOutput = (VHOutput >> 15) | ((VHOutput & 1) << 15);
 	}
 
-#if 0
 	//////////////////////////
 	// CFBDSUB flag
 	// Substitute the VH values from the frame buffer if requested.
@@ -1325,14 +1322,13 @@ unsigned int  PPROJ_OUTPUT(unsigned int pdec_output, unsigned int pproc_output, 
 		//       causes the wing commander 3 movies to screw up again! There
 		//       must be some missing mbehavior elsewhere.
 		//VHOutput = (pframe_input & 0x8001);
+		(void)pframe_input;
 	}
-#endif
-
 
 	//////////////////////////
 	// B15POS_MASK settings
 	// Substitute the V value explicitly if requested.
-	int b15mode = (CCBCTL0 & B15POS_MASK);
+	unsigned int b15mode = (CCBCTL0 & B15POS_MASK);
 	if (b15mode == B15POS_PDC) {
 		// Don't touch it.
 	} else if (b15mode == B15POS_0) {
@@ -1534,6 +1530,7 @@ unsigned int * _madam_GetRegs(void)
 
 void  DrawPackedCel_New(void)
 {
+	int pix;
 	sf = 100000;
 	uint16_t CURPIX, LAMV;
 
@@ -1694,7 +1691,7 @@ void  DrawPackedCel_New(void)
 			while (!eor) {//while not end of row
 
 				type = BitReaderBig_Read(&bitoper, 2);
-				if ( (bitoper.point + start) >= (lastaddr))
+				if ( (int)(bitoper.point + start) >= (lastaddr))
 					type = 0;
 
 				int __pix = BitReaderBig_Read(&bitoper, 6) + 1;
@@ -1774,7 +1771,7 @@ void  DrawPackedCel_New(void)
 			while (!eor) {//while not end of row
 
 				type = BitReaderBig_Read(&bitoper, 2);
-				if ( (bitoper.point + start) >= (lastaddr)) type = 0;
+				if ( (int)(bitoper.point + start) >= (lastaddr)) type = 0;
 
 				int __pix = BitReaderBig_Read(&bitoper, 6) + 1;
 
@@ -1877,7 +1874,7 @@ void  DrawLiteralCel_New(void)
 	switch (TEXEL_FUN_NUMBER) {
 	case 0:
 	{
-		unsigned i;
+		int i;
 
 		//  if(speedfixes>=0&&speedfixes<=100001)   speedfixes=300000;
 		sdf = 100000;
@@ -1888,7 +1885,7 @@ void  DrawLiteralCel_New(void)
 		PDATA += ((offset + 2) << 2) * TEXTURE_HI_START;
 		if (SPRWI > TEXTURE_WI_LIM) SPRWI = TEXTURE_WI_LIM;
 		for (i = TEXTURE_HI_START; i < TEXTURE_HI_LIM; i++) {
-			unsigned j;
+			int j;
 
 			BitReaderBig_AttachBuffer(&bitoper, PDATA);
 			BITCALC = ((offset + 2) << 2) << 5;
@@ -1924,7 +1921,7 @@ void  DrawLiteralCel_New(void)
 	case 1:
 	{
 		int drawHeight;
-		unsigned i, j;
+		int i, j;
 
 		SPRWI -= ((PRE0 >> 24) & 0xf);
 
@@ -1963,7 +1960,7 @@ void  DrawLiteralCel_New(void)
 	break;
 	default:
 	{
-		unsigned i, j;
+		int i, j;
 
 		SPRWI -= ((PRE0 >> 24) & 0xf);
 		for (i = 0; i < SPRHI; i++) {
@@ -2521,7 +2518,7 @@ int  TexelDraw_Arbitrary(uint16_t CURPIX, uint16_t LAMV,
 {
 	int miny, maxy, i, xpoints[4], j, maxyt, maxxt, maxx;
 	int updowns[4], jtmp;
-	unsigned int pixel;
+	unsigned int pixel = 0;
 	unsigned int curr = -1, next;
 
 	xA >>= (16 - HightResMode);

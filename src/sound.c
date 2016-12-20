@@ -3,7 +3,7 @@
 
 static Uint8 *audio_buffer;
 static Uint32 audio_len = 0;
-static Uint8 *audio_pos;
+//static Uint8 *audio_pos;
 SDL_AudioSpec wanted, empty;
 int audio_pointer = 0;
 int audio_read = 0;
@@ -13,12 +13,14 @@ int buffer_size = 4096 * 32;
 
 void fill_audio(void *udata, Uint8 *stream, int len)
 {
+	(void)udata;
+
 	if (( audio_len == 0 )) {
 		return;
 	}
 
 	/* Mix as much data as possible */
-	len = ( len > audio_len ? audio_len : len );
+	len = ( len > (int)audio_len ? (int)audio_len : len );
 
 	/*protect against underruns*/
 	if (SDL_GetAudioStatus() == SDL_AUDIO_PAUSED && (audio_read + len >= audio_pointer) && (audio_read < audio_pointer)) {
@@ -68,9 +70,6 @@ int soundInit()
 
 void soundFillBuffer(unsigned int dspLoop)
 {
-	unsigned int Rloop = dspLoop & 0x0000FFFF;
-	unsigned int Lloop = (dspLoop & 0xFFFF0000) >> 16;
-
 	if (audio_pointer <= buffer_size) {
 		memcpy(audio_buffer + audio_pointer, &dspLoop, 4);
 		audio_pointer += 4;

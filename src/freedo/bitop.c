@@ -51,7 +51,7 @@ void BitReaderBig_SetBitRate(struct BitReaderBig *bit, uint8_t bits)
 uint32_t BitReaderBig_Read(struct BitReaderBig *bit, uint8_t bits)
 {
 	int32_t bitcnt;
-	const static uint8_t mas[] = { 0, 1, 3, 7, 15, 31, 63, 127, 255 };
+	static const uint8_t mas[] = { 0, 1, 3, 7, 15, 31, 63, 127, 255 };
 	uint32_t retval = 0;
 
 	BitReaderBig_SetBitRate(bit, bits);
