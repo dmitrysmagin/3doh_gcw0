@@ -35,8 +35,6 @@ char imageFile[128];
 char configFile[128];
 
 unsigned char __temporalfixes;
-int HightResMode;
-int __tex__scaler;
 
 int count_samples = 0;
 

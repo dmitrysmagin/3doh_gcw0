@@ -39,7 +39,6 @@
 
 extern int fixmode;
 extern int cnbfix;
-extern int HightResMode;
 
 extern _ext_Interface io_interface;
 
@@ -582,11 +581,11 @@ uint8_t *_arm_Init(void)
 		RON_CASH[i] = RON_FIQ[i] = 0;
 
 	gSecondROM = 0;
-	pRam   = malloc(RAMSIZE + 1024 * 1024 * 16 * sizeof(uint8_t));
+	pRam   = malloc(RAMSIZE * sizeof(uint8_t));
 	pRom   = malloc(ROMSIZE * 2 * sizeof(uint8_t));
 	pNVRam = malloc(NVRAMSIZE * sizeof(uint8_t));
 
-	memset( pRam, 0, RAMSIZE + 1024 * 1024 * 16);
+	memset( pRam, 0, RAMSIZE);
 	memset( pRom, 0, ROMSIZE * 2);
 	memset( pNVRam, 0, NVRAMSIZE);
 	gFIQ = false;
@@ -1525,31 +1524,16 @@ int _arm_Execute(void)
 void _mem_write8(uint32_t addr, uint8_t val)
 {
 	pRam[addr] = val;
-	if (addr < 0x200000 || !HightResMode)
-		return;
-	pRam[addr + 1024 * 1024] = val;
-	pRam[addr + 2 * 1024 * 1024] = val;
-	pRam[addr + 3 * 1024 * 1024] = val;
 }
 
 void _mem_write16(uint32_t addr, uint16_t val)
 {
 	*((uint16_t*)&pRam[addr]) = val;
-	if (addr < 0x200000 || !HightResMode)
-		return;
-	*((uint16_t*)&pRam[addr + 1024 * 1024]) = val;
-	*((uint16_t*)&pRam[addr + 2 * 1024 * 1024]) = val;
-	*((uint16_t*)&pRam[addr + 3 * 1024 * 1024]) = val;
 }
 
 void _mem_write32(uint32_t addr, uint32_t val)
 {
 	*((uint32_t*)&pRam[addr]) = val;
-	if (addr < 0x200000 || !HightResMode)
-		return;
-	*((uint32_t*)&pRam[addr + 1024 * 1024]) = val;
-	*((uint32_t*)&pRam[addr + 2 * 1024 * 1024]) = val;
-	*((uint32_t*)&pRam[addr + 3 * 1024 * 1024]) = val;
 }
 
 uint16_t _mem_read16(uint32_t addr)

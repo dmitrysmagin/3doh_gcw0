@@ -28,8 +28,6 @@
 #include "vdlp.h"
 #include "arm.h"
 
-extern int HightResMode;
-
 /* === VDL Palette data === */
 #define VDL_CONTROL     0x80000000
 #define VDL_BACKGROUND  0xE0000000
@@ -206,7 +204,7 @@ static INLINE void VDLExec(void)
 
 static INLINE uint32_t VRAMOffEval(uint32_t addr, uint32_t line)
 {
-	return ((((~addr) & 2) << (18 + HightResMode)) + ((addr >> 2) << 1) + 1024 * 512 * line) << HightResMode;
+	return ((((~addr) & 2) << 18) + ((addr >> 2) << 1) + 1024 * 512 * line);
 }
 
 void _vdl_DoLineNew(int line2x, struct VDLFrame *frame)
@@ -228,23 +226,7 @@ void _vdl_DoLineNew(int line2x, struct VDLFrame *frame)
 
 	if ((y >= 0) && (y < 240)) { // 256???
 		if (CLUTDMA.dmaw.enadma) {
-			if (HightResMode) {
-				uint16_t *dst1, *dst2;
-				uint32_t *src1, *src2, *src3, *src4;
-				dst1 = frame->lines[(y << 1)].line;
-				dst2 = frame->lines[(y << 1) + 1].line;
-				src1 = (uint32_t*)(vram + ((PREVIOUSBMP ^ 2) & 0x0FFFFF));
-				src2 = (uint32_t*)(vram + ((PREVIOUSBMP ^ 2) & 0x0FFFFF) + 1024 * 1024);
-				src3 = (uint32_t*)(vram + ((CURRENTBMP ^ 2) & 0x0FFFFF) + 2 * 1024 * 1024);
-				src4 = (uint32_t*)(vram + ((CURRENTBMP ^ 2) & 0x0FFFFF) + 3 * 1024 * 1024);
-				i = 320;
-				while (i--) {
-					*dst1++ = *(uint16_t*)(src1++);
-					*dst1++ = *(uint16_t*)(src2++);
-					*dst2++ = *(uint16_t*)(src3++);
-					*dst2++ = *(uint16_t*)(src4++);
-				}
-			} else {
+			{
 				uint16_t *dst;
 				uint32_t *src;
 				dst = frame->lines[y].line;
@@ -253,21 +235,13 @@ void _vdl_DoLineNew(int line2x, struct VDLFrame *frame)
 				while (i--)
 					*dst++ = *(uint16_t*)(src++);
 			}
-			memcpy(frame->lines[(y << HightResMode)].xCLUTB, CLUTB, 32);
-			memcpy(frame->lines[(y << HightResMode)].xCLUTG, CLUTG, 32);
-			memcpy(frame->lines[(y << HightResMode)].xCLUTR, CLUTR, 32);
-			if (HightResMode)
-				memcpy(frame->lines[(y << HightResMode) + 1].xCLUTB, frame->lines[(y << HightResMode)].xCLUTB, 32 * 3);
+			memcpy(frame->lines[y].xCLUTB, CLUTB, 32);
+			memcpy(frame->lines[y].xCLUTG, CLUTG, 32);
+			memcpy(frame->lines[y].xCLUTR, CLUTR, 32);
 		}
-		frame->lines[(y << HightResMode)].xOUTCONTROLL = OUTCONTROLL;
-		frame->lines[(y << HightResMode)].xCLUTDMA = CLUTDMA.raw;
-		frame->lines[(y << HightResMode)].xBACKGROUND = BACKGROUND;
-		if (HightResMode) {
-			frame->lines[(y << HightResMode) + 1].xOUTCONTROLL = OUTCONTROLL;
-			frame->lines[(y << HightResMode) + 1].xCLUTDMA = CLUTDMA.raw;
-			frame->lines[(y << HightResMode) + 1].xBACKGROUND = BACKGROUND;
-		}
-
+		frame->lines[y].xOUTCONTROLL = OUTCONTROLL;
+		frame->lines[y].xCLUTDMA = CLUTDMA.raw;
+		frame->lines[y].xBACKGROUND = BACKGROUND;
 	} // //if((y>=0) && (y<240))
 
 	if (CURRENTBMP & 2)

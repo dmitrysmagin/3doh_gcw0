@@ -119,8 +119,6 @@ bool  _qrz_QueueVDL(void)
 bool  _qrz_QueueDSP(void)
 {
 	if (qrz_AccDSP >> 24) {
-		//if(HightResMode!=0) qrz_AccDSP-=0x1000000/1.3;
-		//else
 		qrz_AccDSP -= 0x1000000;
 		return true;
 	}

@@ -31,8 +31,6 @@ static uint32_t gSPORTSOURCE = 0;
 static uint32_t gSPORTDESTINATION = 0;
 static uint8_t  *VRAM;
 
-extern int HightResMode;
-
 uint32_t _sport_SaveSize(void)
 {
 	return 12;
@@ -85,11 +83,6 @@ void _sport_WriteAccess(uint32_t index, uint32_t mask)
 				((uint32_t*)VRAM)[index + i] = tmp;
 			}
 		}
-		if (!HightResMode)
-			return;
-		memcpy(&((uint32_t*)VRAM)[index + 1024 * 256], &((uint32_t*)VRAM)[index], 2048);
-		memcpy(&((uint32_t*)VRAM)[index + 2 * 1024 * 256], &((uint32_t*)VRAM)[index], 2048);
-		memcpy(&((uint32_t*)VRAM)[index + 3 * 1024 * 256], &((uint32_t*)VRAM)[index], 2048);
 		return;
 	}
 
@@ -98,11 +91,6 @@ void _sport_WriteAccess(uint32_t index, uint32_t mask)
 		gSPORTDESTINATION = (index & 0x7ff) << 7;
 		if (mask == 0xFFFFffff) {
 			memcpy(&((uint32_t*)VRAM)[gSPORTDESTINATION], &((uint32_t*)VRAM)[gSPORTSOURCE], 512 * 4);
-			if (!HightResMode)
-				return;
-			memcpy(&((uint32_t*)VRAM)[gSPORTDESTINATION + 1024 * 256], &((uint32_t*)VRAM)[gSPORTSOURCE + 1024 * 256], 2048);
-			memcpy(&((uint32_t*)VRAM)[gSPORTDESTINATION + 2 * 1024 * 256], &((uint32_t*)VRAM)[gSPORTSOURCE + 2 * 1024 * 256], 2048);
-			memcpy(&((uint32_t*)VRAM)[gSPORTDESTINATION + 3 * 1024 * 256], &((uint32_t*)VRAM)[gSPORTSOURCE + 3 * 1024 * 256], 2048);
 		} else {// mask != 0xFFFFffff
 			for (i = 0; i < 512; i++) {
 				tmp = ((uint32_t*)VRAM)[gSPORTDESTINATION + i];
@@ -110,11 +98,6 @@ void _sport_WriteAccess(uint32_t index, uint32_t mask)
 				tmp = ((tmp ^ ctmp) & mask) ^ ctmp;
 				((uint32_t*)VRAM)[gSPORTDESTINATION + i] = tmp;
 			}
-			if (!HightResMode)
-				return;
-			memcpy(&((uint32_t*)VRAM)[gSPORTDESTINATION + 1024 * 256], &((uint32_t*)VRAM)[gSPORTDESTINATION], 2048);
-			memcpy(&((uint32_t*)VRAM)[gSPORTDESTINATION + 2 * 1024 * 256], &((uint32_t*)VRAM)[gSPORTDESTINATION], 2048);
-			memcpy(&((uint32_t*)VRAM)[gSPORTDESTINATION + 3 * 1024 * 256], &((uint32_t*)VRAM)[gSPORTDESTINATION], 2048);
 		}
 		return;
 	}

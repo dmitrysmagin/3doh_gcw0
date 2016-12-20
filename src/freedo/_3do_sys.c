@@ -254,7 +254,6 @@ uint32_t _3do_DiscSize(void)
 }
 
 int __tex__scaler = 0;
-int HightResMode = 0;
 int fixmode = 0;
 int speedfixes = 0;
 int sf = 0;

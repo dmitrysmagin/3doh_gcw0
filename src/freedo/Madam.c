@@ -34,7 +34,6 @@
 #include "bitop.h"
 struct BitReaderBig bitoper;
 
-extern int HightResMode;
 extern int sf;
 extern int sdf;
 extern int unknownflag11;
@@ -2457,19 +2456,14 @@ int  TexelDraw_Line(uint16_t CURPIX, uint16_t LAMV, int xcur, int ycur, int cnt)
 
 static INLINE uint16_t readPIX(uint32_t src, int i, int j)
 {
-	src += XY2OFF((((j) >> (HightResMode)) << 2), (i >> HightResMode), WMOD);
-	if (HightResMode)
-		return *((uint16_t*)&Mem[(src ^ 2) + (((i & 1) << 1) + ((j) & 1)) * 1024 * 1024]);
+	src += XY2OFF((j << 2), i, WMOD);
 	return *((uint16_t*)&Mem[src ^ 2]);
 }
 
 static INLINE void writePIX(uint32_t src, int i, int j, uint16_t pix)
 {
-	src += XY2OFF((((j) >> (HightResMode)) << 2), (i >> HightResMode), WMOD);
-	if (HightResMode)
-		*((uint16_t*)&Mem[(src ^ 2) + (((i & 1) << 1) + ((j) & 1)) * 1024 * 1024]) = pix;
-	else
-		*((uint16_t*)&Mem[src ^ 2]) = pix;
+	src += XY2OFF((j << 2), i, WMOD);
+	*((uint16_t*)&Mem[src ^ 2]) = pix;
 }
 
 
@@ -2521,19 +2515,19 @@ int  TexelDraw_Arbitrary(uint16_t CURPIX, uint16_t LAMV,
 	unsigned int pixel = 0;
 	unsigned int curr = -1, next;
 
-	xA >>= (16 - HightResMode);
-	xB >>= (16 - HightResMode);
-	xC >>= (16 - HightResMode);
-	xD >>= (16 - HightResMode);
-	yA >>= (16 - HightResMode);
-	yB >>= (16 - HightResMode);
-	yC >>= (16 - HightResMode);
-	yD >>= (16 - HightResMode);
+	xA >>= 16;
+	xB >>= 16;
+	xC >>= 16;
+	xD >>= 16;
+	yA >>= 16;
+	yB >>= 16;
+	yC >>= 16;
+	yD >>= 16;
 
 	if ((xA) == (xB) && (xB) == (xC) && (xC) == (xD)) return 0;
 
-	maxxt = ((CLIPXVAL + 1) << HightResMode);
-	maxyt = ((CLIPYVAL + 1) << HightResMode);
+	maxxt = CLIPXVAL + 1;
+	maxyt = CLIPYVAL + 1;
 
 	if (HDX1616 < 0 && HDDX1616 < 0) {
 		if ((xA < 0) && (xB < 0) && (xC < 0) && (xD < 0))
