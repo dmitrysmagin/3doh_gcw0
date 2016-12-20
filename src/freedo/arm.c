@@ -1097,12 +1097,11 @@ void arm60_MULT(unsigned long cmd)
 	else
 		CYCLES -= res;
 
-#if 1
-	res = RON_USER[Rm] * RON_USER[Rs];
-	if (A)
-		res += RON_USER[Rn];
-#else
-	// FIXME: Check why this
+	// FIXME: Why can't it be like this?
+	//res = RON_USER[Rm] * RON_USER[Rs];
+	//if (A)
+	//	res += RON_USER[Rn];
+
 	if (Rd == Rm) {
 		if (A) {
 			REG_PC += 8;
@@ -1120,7 +1119,6 @@ void arm60_MULT(unsigned long cmd)
 		} else
 			res = RON_USER[Rm] * RON_USER[Rs];
 	}
-#endif
 
 	if (S) {
 		ARM_SET_ZN(res);
