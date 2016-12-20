@@ -225,6 +225,10 @@ int initEmu()
 	time_start = timerGettime();
 
 	while (!quit) {
+		extern struct VDLFrame *frame;
+
+		fd_interface(FDP_DO_EXECFRAME, (struct VDLFrame*)frame);
+
 		videoFlip();
 
 		quit = inputQuit();

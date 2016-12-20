@@ -119,15 +119,20 @@ void _3do_InternalFrame(int cycles)
 	int line;
 
 	_qrz_PushARMCycles(cycles);
+
 	if (_qrz_QueueDSP())
 		io_interface(EXT_PUSH_SAMPLE, (void*)(uintptr_t)_dsp_Loop());
+
 	if (_qrz_QueueTimer())
 		_clio_DoTimers();
+
 	if (_qrz_QueueVDL()) {
 		line = _qrz_VDCurrLine();
 		_clio_UpdateVCNT(line, _qrz_VDHalfFrame());
+
 		if (!skipframe)
 			_vdl_DoLineNew(line, curr_frame);
+
 		if (line == 16 && skipframe)
 			io_interface(EXT_FRAMETRIGGER_MT, NULL);
 
@@ -253,7 +258,6 @@ uint32_t _3do_DiscSize(void)
 	return (intptr_t)io_interface(EXT_GET_DISC_SIZE, NULL);
 }
 
-int __tex__scaler = 0;
 int fixmode = 0;
 int speedfixes = 0;
 int sf = 0;
@@ -312,27 +316,26 @@ void _freedo_Interface(int procedure, void *datum)
 		ARM_CLOCK = (intptr_t)datum;
 		break;
 	case FDP_SET_TEXQUALITY:
-		__tex__scaler = (intptr_t)datum;
+		// Not supported
 		break;
-		//	case FDP_SET_FIX_MODE:
-		//		fixmode=(intptr_t)datum;
-		//		break;
-		//	case FDP_GET_FRAME_BITMAP:
-		//		GetFrameBitmapParams* param = (GetFrameBitmapParams*)datum;
-		//		Get_Frame_Bitmap(
-		//			param->sourceFrame
-		//			, param->destinationBitmap
-		//			, param->destinationBitmapWidthPixels
-		//			, param->bitmapCrop
-		//			, param->copyWidthPixels
-		//			, param->copyHeightPixels
-		//			, param->addBlackBorder
-		//			, param->copyPointlessAlphaByte
-		//			, param->allowCrop
-		//			, (ScalingAlgorithm)param->scalingAlgorithm
-		//			, &param->resultingWidth
-		//			, &param->resultingHeight);
-		//		break;
+//	case FDP_SET_FIX_MODE:
+//		fixmode=(intptr_t)datum;
+//		break;
+//	case FDP_GET_FRAME_BITMAP:
+//		GetFrameBitmapParams* param = (GetFrameBitmapParams*)datum;
+//		Get_Frame_Bitmap(
+//			param->sourceFrame
+//			, param->destinationBitmap
+//			, param->destinationBitmapWidthPixels
+//			, param->bitmapCrop
+//			, param->copyWidthPixels
+//			, param->copyHeightPixels
+//			, param->addBlackBorder
+//			, param->copyPointlessAlphaByte
+//			, param->allowCrop
+//			, (ScalingAlgorithm)param->scalingAlgorithm
+//			, &param->resultingWidth
+//			, &param->resultingHeight);
+//		break;
 	}
-	;
 }

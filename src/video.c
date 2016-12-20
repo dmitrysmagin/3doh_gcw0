@@ -7,7 +7,6 @@ int screen_height = 0;
 int screen_bpp = 0;
 SDL_Surface *screen;
 struct VDLFrame *frame;
-extern _ext_Interface fd_interface;
 
 #ifdef __GCW__
 	#define flags SDL_HWSURFACE | SDL_DOUBLEBUF
@@ -44,8 +43,6 @@ int videoClose()
 
 void videoFlip()
 {
-	fd_interface(FDP_DO_EXECFRAME, (struct VDLFrame*)frame);
-
 	SDL_LockSurface( screen );
 	Get_Frame_Bitmap((struct VDLFrame*)frame, screen->pixels, 320, 240);
 	SDL_UnlockSurface( screen );
