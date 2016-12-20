@@ -204,22 +204,6 @@ void _arm_Load(void *buff)
 	memcpy(tRom, ((uint8_t*)buff) + sizeof(struct ARM_CoreState) + RAMSIZE, ROMSIZE * 2);
 	memcpy(tNVRam, ((uint8_t*)buff) + sizeof(struct ARM_CoreState) + RAMSIZE + ROMSIZE * 2, NVRAMSIZE);
 
-	memcpy(tRam + 3 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 4 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 5 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 6 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 7 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 8 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 9 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 10 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 11 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 12 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 13 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 14 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 15 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 16 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-	memcpy(tRam + 17 * 1024 * 1024, tRam + 2 * 1024 * 1024, 1024 * 1024);
-
 	pRom = tRom;
 	pRam = tRam;
 	pNVRam = tNVRam;
