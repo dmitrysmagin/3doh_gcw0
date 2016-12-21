@@ -42,18 +42,22 @@ extern int cnbfix;
 
 extern _ext_Interface io_interface;
 
+#define ARM_ALU_MASK    0x0c000000
+#define ARM_ALU_SIGN    0x00000000
 #define ARM_MUL_MASK    0x0fc000f0
 #define ARM_MUL_SIGN    0x00000090
 #define ARM_SDS_MASK    0x0fb00ff0
 #define ARM_SDS_SIGN    0x01000090
-#define ARM_UND_MASK    0x0e000010
-#define ARM_UND_SIGN    0x06000010
-#define ARM_MRS_MASK    0x0fbf0fff
-#define ARM_MRS_SIGN    0x010f0000
-#define ARM_MSR_MASK    0x0fbffff0
-#define ARM_MSR_SIGN    0x0129f000
-#define ARM_MSRF_MASK   0x0dbff000
-#define ARM_MSRF_SIGN   0x0128f000
+#define ARM_SDT_MASK    0x0c000000
+#define ARM_SDT_SIGN    0x04000000
+#define ARM_BDT_MASK    0x0e000000
+#define ARM_BDT_SIGN    0x08000000
+#define ARM_BRA_MASK    0x0e000000
+#define ARM_BRA_SIGN    0x0a000000
+#define ARM_COP_MASK    0x0f000000
+#define ARM_COP_SIGN    0x0e000000
+#define ARM_SWI_MASK    0x0f000000
+#define ARM_SWI_SIGN    0x0f000000
 
 //режимы процессора----------------------------------------------------------
 #define ARM_MODE_USER   0
@@ -777,7 +781,7 @@ void stm_accur(uint32_t opc, uint32_t base, uint32_t rn_ind)
 
 
 
-void  bdt_core(uint32_t opc)
+void arm60_BDT(uint32_t opc)
 {
 	uint32_t base;
 	uint32_t rn_ind = (opc >> 16) & 0xf;
@@ -965,7 +969,7 @@ uint32_t  ARM_SHIFT_SC(uint32_t value, uint8_t shift, uint8_t type)
 
 
 
-void ARM_SWAP(uint32_t cmd)
+void arm60_SWAP(uint32_t cmd)
 {
 	uint32_t tmp, addr;
 
@@ -975,18 +979,16 @@ void ARM_SWAP(uint32_t cmd)
 
 	if (cmd & (1 << 22)) {
 		tmp = mreadb(addr);
-		//	if(MAS_Access_Exept)return true;
 		mwriteb(addr, RON_USER[cmd & 0xf]);
 		REG_PC -= 8;
-		//	if(MAS_Access_Exept)return true;
 		RON_USER[(cmd >> 12) & 0xf] = tmp;
 	} else {
 		tmp = mreadw(addr);
-		//if(MAS_Access_Exept)return true;
 		mwritew(addr, RON_USER[cmd & 0xf]);
 		REG_PC -= 8;
-		//	if(MAS_Access_Exept)return true;
-		if (addr & 3) tmp = (tmp >> ((addr & 3) << 3)) | (tmp << (32 - ((addr & 3) << 3)));
+		if (addr & 3)
+			tmp = (tmp >> ((addr & 3) << 3)) |
+			      (tmp << (32 - ((addr & 3) << 3)));
 		RON_USER[(cmd >> 12) & 0xf] = tmp;
 	}
 }
@@ -996,47 +998,7 @@ static INLINE uint32_t calcbits(uint32_t num)
 	if ((num & 0xFFFF0000) && (num & 0x0000FFFF))
 		return 32; //3doh fix
 	return 0;
-	/*uint32_t retval;
-
-	   if(!num)
-	   return 1;
-
-	   if(num>>16)
-	   {
-	   num>>=16;
-	   retval=16;
-	   }
-	   else
-	   retval=0;
-
-	   if(num>>8)
-	   {
-	   num>>=8;
-	   retval+=8;
-	   }
-	   if(num>>4)
-	   {
-	   num>>=4;
-	   retval+=4;
-	   }
-
-	   if(num>>2)
-	   {
-	   num>>=2;
-	   retval+=2;
-	   }
-	   if(num>>1)
-	   {
-	   num>>=1;
-	   retval+=2;
-	   }
-	   else if(num)
-	   retval++;
-
-	   return retval;*/
 }
-
-uint32_t curr_pc;
 
 const bool is_logic[] = {
 	true,  true,  false, false,
@@ -1044,8 +1006,6 @@ const bool is_logic[] = {
 	true,  true,  false, false,
 	true,  true,  true,  true
 };
-
-
 
 void arm60_BRANCH(unsigned long cmd)
 {
@@ -1425,68 +1385,34 @@ int _arm_Execute(void)
 	}
 #endif
 
-	curr_pc = REG_PC;
 	REG_PC += 4;
 	CYCLES = -SCYCLE;
 
 	if (((cond_flags_cross[((cmd) >> 28)] >> ((CPSR) >> 28)) & 1)) {
-		if ((cmd & 0x0fc000f0) == 0x00000090) {          /* Multiplication */
+		if ((cmd & ARM_MUL_MASK) == ARM_MUL_SIGN) {		/* Multiplication */
 			arm60_MULT(cmd);
-			//printf("%x\n",cmd);
-		} else if (!(cmd & 0x0c000000)) {      /* Data processing */
-			//HandleALU(cpustate, insn);
-			//arm60_ALU(cmd);
-			//printf("%x\n",cmd);
-		} else if ((cmd & 0x0c000000) == 0x04000000) {      /* Single data access */
+		} else if ((cmd & ARM_SDS_MASK) == ARM_SDS_SIGN) {	/* Single data swap */
+			arm60_SWAP(cmd);
+			CYCLES -= 2 * NCYCLE + ICYCLE;
+		} else if (((cmd & ARM_ALU_MASK) == ARM_ALU_SIGN)) {	/* Data processing */
+			arm60_ALU(cmd);
+		} else if ((cmd & ARM_SDT_MASK) == ARM_SDT_SIGN) {	/* Single data transfer */
 			arm60_SDT(cmd);
-			//HandleMemSingle(cpustate, insn);
-			//R15 += 4;
-		} else if ((cmd & 0x0e000000) == 0x08000000 ) {      /* Block data access */
-			//HandleMemBlock(cpustate, insn);
-			//R15 += 4;
-			bdt_core(cmd);
-		} else if ((cmd & 0x0e000000) == 0x0a000000) {        /* Branch */
-			//HandleBranch(cpustate, insn);
+		} else if ((cmd & ARM_BDT_MASK) == ARM_BDT_SIGN) {	/* Block data transfer */
+			arm60_BDT(cmd);
+		} else if ((cmd & ARM_BRA_MASK) == ARM_BRA_SIGN) {	/* Branch */
 			arm60_BRANCH(cmd);
-		} else if ((cmd & 0x0f000000) == 0x0e000000) {        /* Coprocessor */
-			//HandleCoPro(cpustate, insn);
-			//R15 += 4;
+		} else if ((cmd & ARM_COP_MASK) == ARM_COP_SIGN) {	/* Coprocessor */
 			arm60_COPRO(/*cmd*/);
-		} else if ((cmd & 0x0f000000) == 0x0f000000) {        /* Software interrupt */
+		} else if ((cmd & ARM_SWI_MASK) == ARM_SWI_SIGN) {	/* Software interrupt */
 			decode_swi(cmd);
-		} else {     /* Undefined */
+		} else {						/* Undefined */
 			SPSR[arm_mode_table[0x1b]] = CPSR;
 			SETI(1);
 			SETM(0x1b);
 			load(14, REG_PC);
 			REG_PC = 0x00000004;                    // (-4) fetch!!!
 			CYCLES -= SCYCLE + NCYCLE;              // +2S+1N
-		}
-
-/*************************************************************************************************/
-		switch ((cmd >> 24) & 0xf) {
-		case 0x8: //Block Data Transfer
-		case 0x9:
-			//bdt_core(cmd);
-			break;
-		case 0x0: //Multiply
-			if ((cmd & ARM_MUL_MASK) == ARM_MUL_SIGN) {
-				//arm60_MULT(cmd);
-				break;
-			}
-		case 0x1: //Single Data Swap
-			if ((cmd & ARM_SDS_MASK) == ARM_SDS_SIGN) {
-				ARM_SWAP(cmd);
-				CYCLES -= 2 * NCYCLE + ICYCLE;
-				break;
-			}
-		case 0x2: //ALU
-		case 0x3:
-			if ((cmd & 0x2000090) != 0x90) {
-				arm60_ALU(cmd);
-				//printf("%x\n",cmd);
-				break;
-			}
 		}
 	}
 
