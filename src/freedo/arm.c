@@ -68,7 +68,6 @@ extern _ext_Interface io_interface;
 #define ARM_MODE_UND    5
 #define ARM_MODE_UNK    0xff
 
-//static AString str;
 static const uint8_t arm_mode_table[] =
 {
 	ARM_MODE_UNK,  ARM_MODE_UNK,	 ARM_MODE_UNK,	   ARM_MODE_UNK,
@@ -536,14 +535,15 @@ static INLINE void SETF(bool a)
 #define ISV  ((CPSR >> 28) & 1)
 
 #define MODE ((CPSR & 0x1f))
-#define ISI      ((CPSR >> 7) & 1)
+#define ISI  ((CPSR >> 7) & 1)
 #define ISF  ((CPSR >> 6) & 1)
 
 #define ROTR(val, shift) ((shift)) ? (((val) >> (shift)) | ((val) << (32 - (shift)))) : (val)
 
 static inline unsigned long __rotr(unsigned long val, unsigned long shift)
 {
-	if (!shift) return val;
+	if (!shift)
+		return val;
 	return (val >> shift) | (val << (32 - shift));
 }
 
@@ -1013,9 +1013,8 @@ void arm60_BRANCH(unsigned long cmd)
 	if (cmd & (1 << 24)) {
 		RON_USER[14] = REG_PC;
 	}
+
 	REG_PC += (((cmd & 0xffffff) | ((cmd & 0x800000) ? 0xff000000 : 0)) << 2) + 4;
-
-
 
 	CYCLES -= SCYCLE + NCYCLE;                             //2S+1N
 
@@ -1073,27 +1072,35 @@ void arm60_MULT(unsigned long cmd)
 void arm60_SDT(unsigned long cmd)
 {
 	unsigned char shift, shtype;
-	unsigned long pc_tmp, cmd_tmp;
+	uint32_t pc_tmp;
+	uint32_t W; // writeback flag
+	uint32_t P; // pre/post indexing
+	uint32_t L; // load/store
+	uint32_t B; // byte/word
+	uint32_t I; // reg+shift/immediate
+	uint32_t Rn, Rd; // base register, dest register
 
 	unsigned int base, tbas;
 	unsigned int oper2;
 	unsigned int val, rora;
 
-	//uint8	delta;
+	L = !!(cmd & (1 << 20));
+	W = !!(cmd & (1 << 21));
+	B = !!(cmd & (1 << 22));
+	P = !!(cmd & (1 << 24));
+	I = !!(cmd & (1 << 25));
+	Rn = (cmd >> 16) & 0xf;
+	Rd = (cmd >> 12) & 0xf;
 
 	pc_tmp = REG_PC;
 	REG_PC += 4;
-	cmd_tmp = cmd >> 25 & 0x1;
-	switch (cmd_tmp) {
-	case 1:
+
+	if (I) { // reg+shift
 		shtype = (cmd >> 5) & 0x3;
-		cmd_tmp = cmd >> 4 & 0x1;
-		switch (cmd_tmp) {
-		case 1:
+		if ((cmd >> 4) & 1) {	// shift by reg
 			shift = (RON_USER[(cmd >> 8) & 0xf]) & 0xff;
 			REG_PC += 4;
-			break;
-		default:
+		} else {		// shift by imm
 			shift = (cmd >> 7) & 0x1f;
 			if (!shift) {          //revisar
 				switch (shtype) {
@@ -1106,76 +1113,71 @@ void arm60_SDT(unsigned long cmd)
 					shift = 32;
 					break;
 				}
-				;
 			}
-			break;
 		}
 
 		oper2 = ARM_SHIFT_NSC(RON_USER[cmd & 0xf], shift, shtype);
-		break;
-	default:
+	} else { // immediate
 		oper2 = (cmd & 0xfff);
-		break;
 	}
 
-	tbas = base = RON_USER[((cmd >> 16) & 0xf)];
+	tbas = base = RON_USER[(Rn)];
 
 	if (!(cmd & (1 << 23)))
 		oper2 = 0 - oper2;
 
-	if (cmd & (1 << 24))
+	if (P)
 		tbas = base = base + oper2;
 	else
 		base = base + oper2;
 
 
-	if (cmd & (1 << 20)) {                            //load
-		if (cmd & (1 << 22)) {                           //bytes
+	if (L) { //load
+		if (B) {				//bytes
 			val = mreadb(tbas) & 0xff;
-		} else {                               //words/halfwords
+		} else {				//words/halfwords
 			val = mreadw(tbas);
 			rora = tbas & 3;
-			if ((rora)) val = __rotr(val, rora * 8);
+			if ((rora))
+				val = __rotr(val, rora * 8);
 		}
 
-		if (((cmd >> 12) & 0xf) == 0xf) {
-			CYCLES -= SCYCLE + NCYCLE;                                 // +1S+1N if R15 load
+		if (Rd == 15) {
+			CYCLES -= SCYCLE + NCYCLE;	// +1S+1N if R15 load
 		}
 
-		CYCLES -= NCYCLE + ICYCLE;                                // +1N+1I
+		CYCLES -= NCYCLE + ICYCLE;		// +1N+1I
 		REG_PC = pc_tmp;
 
-		if ((cmd & (1 << 21)) || (!(cmd & (1 << 24)))) load((cmd >> 16) & 0xf, base);
+		if (W || !P)
+			load(Rn, base);
 
-		if ((cmd & (1 << 21)) && !(cmd & (1 << 24)))
-			loadusr((cmd >> 12) & 0xf, val);                             //privil mode
+		if (W && !P)
+			loadusr(Rd, val);		//privil mode
 		else
-			load((cmd >> 12) & 0xf, val);
+			load(Rd, val);
 
-	} else {                            // store
-
-		if ((cmd & (1 << 21)) && !(cmd & (1 << 24)))
-			val = rreadusr((cmd >> 12) & 0xf);                            // privil mode
+	} else { // store
+		if (W && !P)
+			val = rreadusr(Rd);		// privil mode
 		else
-			val = RON_USER[(cmd >> 12) & 0xf];
+			val = RON_USER[Rd];
 
-		//if(((cmd>>12)&0xf)==0xf)val+=delta;
 		REG_PC = pc_tmp;
-		CYCLES -= -SCYCLE + 2 * NCYCLE;         // 2N
+		CYCLES -= -SCYCLE + 2 * NCYCLE;		// 2N
 
-		if (cmd & (1 << 22))                    //bytes/words
+		if (B)					//bytes
 			mwriteb(tbas, val);
-		else                                    //words/halfwords
+		else					//words
 			mwritew(tbas, val);
 
-		if ((cmd & (1 << 21)) || !(cmd & (1 << 24)))
-			load((cmd >> 16) & 0xf, base);
+		if (W || !P)
+			load(Rn, base);
 	}
 }
 
 void arm60_COPRO(/*unsigned long cmd*/)
 {
-
 	SPSR[arm_mode_table[0x1b]] = CPSR;
 	SETI(1);
 	SETM(0x1b);
@@ -1183,6 +1185,25 @@ void arm60_COPRO(/*unsigned long cmd*/)
 	REG_PC = 0x00000004;
 	CYCLES -= SCYCLE + NCYCLE;
 }
+
+enum {
+	OPCODE_AND,	/* 0000 */
+	OPCODE_EOR,	/* 0001 */
+	OPCODE_SUB,	/* 0010 */
+	OPCODE_RSB,	/* 0011 */
+	OPCODE_ADD,	/* 0100 */
+	OPCODE_ADC,	/* 0101 */
+	OPCODE_SBC,	/* 0110 */
+	OPCODE_RSC,	/* 0111 */
+	OPCODE_TST,	/* 1000 */
+	OPCODE_TEQ,	/* 1001 */
+	OPCODE_CMP,	/* 1010 */
+	OPCODE_CMN,	/* 1011 */
+	OPCODE_ORR,	/* 1100 */
+	OPCODE_MOV,	/* 1101 */
+	OPCODE_BIC,	/* 1110 */
+	OPCODE_MVN	/* 1111 */
+};
 
 /* Rd = op1 operation op2 [operation2 op3] */
 void arm60_ALU(unsigned long cmd)
@@ -1235,40 +1256,40 @@ void arm60_ALU(unsigned long cmd)
 		ARM_SET_C(carry_out);
 
 	switch ((cmd >> 20) & 0x1f) {
-	case 0:
+	case 0: // OPCODE_AND
 		RON_USER[Rd] = op1 & op2;
 		break;
-	case 2:
+	case 2: // OPCODE_EOR
 		RON_USER[Rd] = op1 ^ op2;
 		break;
-	case 4:
+	case 4: // OPCODE_SUB
 		RON_USER[Rd] = op1 - op2;
 		break;
-	case 6:
+	case 6: // OPCODE_RSB
 		RON_USER[Rd] = op2 - op1;
 		break;
-	case 8:
+	case 8: // OPCODE_ADD
 		RON_USER[Rd] = op1 + op2;
 		break;
-	case 10:
+	case 10: // OPCODE_ADC
 		RON_USER[Rd] = op1 + op2 + ARM_GET_C;
 		break;
-	case 12:
+	case 12: // OPCODE_SBC
 		RON_USER[Rd] = op1 - op2 - (ARM_GET_C ^ 1);
 		break;
-	case 14:
+	case 14: // OPCODE_RSC
 		RON_USER[Rd] = op2 - op1 - (ARM_GET_C ^ 1);
 		break;
-	case 16:
-	case 20:
+	case 16: // OPCODE_TST
+	case 20: // OPCODE_CMP
 		if ((cmd >> 22) & 1)
 			RON_USER[Rd] = SPSR[arm_mode_table[CPSR & 0x1f]];
 		else
 			RON_USER[Rd] = CPSR;
 
 		return;
-	case 18:
-	case 22:
+	case 18: // OPCODE_TEQ
+	case 22: // OPCODE_CMN
 		if (!((cmd >> 16) & 0x1) || !(arm_mode_table[MODE])) {
 			if ((cmd >> 22) & 1)
 				SPSR[arm_mode_table[MODE]] = (SPSR[arm_mode_table[MODE]] & 0x0fffffff) | (op2 & 0xf0000000);
@@ -1281,16 +1302,16 @@ void arm60_ALU(unsigned long cmd)
 				_arm_SetCPSR(op2);
 		}
 		return;
-	case 24:
+	case 24: // OPCODE_ORR
 		RON_USER[Rd] = op1 | op2;
 		break;
-	case 26:
+	case 26: // OPCODE_MOV
 		RON_USER[Rd] = op2;
 		break;
-	case 28:
+	case 28: // OPCODE_BIC
 		RON_USER[Rd] = op1 & (~op2);
 		break;
-	case 30:
+	case 30: // OPCODE_MVN
 		RON_USER[Rd] = ~op2;
 		break;
 	case 1:
