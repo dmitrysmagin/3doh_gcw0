@@ -1020,7 +1020,11 @@ void arm60_BRANCH(unsigned long cmd)
 
 }
 
-/* Rd = Rm * Rs [+ Rn]*/
+/*
+	MUL{cond}{S} Rd,Rm,Rs
+	MLA{cond}{S} Rd,Rm,Rs,Rn
+	Rd = Rm * Rs [+ Rn]
+*/
 void arm60_MULT(unsigned long cmd)
 {
 	unsigned int Rd, Rn, Rs, Rm, A, S;
@@ -1039,27 +1043,18 @@ void arm60_MULT(unsigned long cmd)
 	else
 		CYCLES -= res;
 
-	// FIXME: Why can't it be like this?
-	//res = RON_USER[Rm] * RON_USER[Rs];
-	//if (A)
-	//	res += RON_USER[Rn];
-
+	// According to arm60.pdf if Rd == Rm the multiplication returns 0
+	// because of hardware algo which uses Rd to store intermediate values.
+	// R15 should not be used as operand or destination register, because
+	// the result is unpredicted
 	if (Rd == Rm) {
-		if (A) {
-			REG_PC += 8;
-			res = RON_USER[Rn];
-			REG_PC -= 8;
-		} else {
-			res = 0;
-		}
+		// TODO: Find which game really uses it
+		res = (A ? RON_USER[Rn] : 0);
 	} else {
+		res = RON_USER[Rm] * RON_USER[Rs];
 		if (A) {
-			res = RON_USER[Rm] * RON_USER[Rs];
-			REG_PC += 8;
 			res += RON_USER[Rn];
-			REG_PC -= 8;
-		} else
-			res = RON_USER[Rm] * RON_USER[Rs];
+		}
 	}
 
 	if (S) {
