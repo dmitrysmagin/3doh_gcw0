@@ -1389,6 +1389,16 @@ void arm60_ALU(unsigned long cmd)
 	}
 }
 
+int _arm_ExecuteC(int cycles)
+{
+	int cnt = 0;
+	do {
+		cnt += _arm_Execute();
+	} while (cycles > cnt);
+
+	return cnt;
+}
+
 int _arm_Execute(void)
 {
 	unsigned long cmd;

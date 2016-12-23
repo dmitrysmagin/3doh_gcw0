@@ -35,6 +35,7 @@
 extern "C" {
 #endif
 
+int _arm_ExecuteC(int cycles);
 int _arm_Execute(void);
 void _arm_Reset(void);
 void _arm_Destroy(void);

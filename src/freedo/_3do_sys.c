@@ -159,19 +159,15 @@ void _3do_Frame(struct VDLFrame *frame, bool __skipframe)
 	skipframe = __skipframe;
 
 	do {
-		if (Get_madam_FSM() == FSM_INPROCESS) {
+		while (Get_madam_FSM() == FSM_INPROCESS) {
 			_madam_HandleCEL();
 			Set_madam_FSM(FSM_IDLE);
-			continue;
 		}
 
-		cnt += _arm_Execute();
-
-		if (cnt >> 4) {
-			_3do_InternalFrame(cnt);
-			i += cnt;
-			cnt = 0;
-		}
+		/* anything between 16 .. 250 is good */
+		cnt = _arm_ExecuteC(64);
+		_3do_InternalFrame(cnt);
+		i += cnt;
 	} while (i < (12500000 / 60));
 }
 
