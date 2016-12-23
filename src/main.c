@@ -219,11 +219,6 @@ int initEmu()
 
 	_3do_Init();
 
-	int frame_end = 0;
-	int time_start = 0;
-	int frames = 0;
-	time_start = timerGettime();
-
 	while (!quit) {
 		extern struct VDLFrame *frame;
 
@@ -232,21 +227,9 @@ int initEmu()
 		videoFlip();
 
 		quit = inputQuit();
+
 		/* Framerate control */
-		waitfps = timerGettime() - frame_end;
-		if (waitfps < 17) {
-			SE_timer_waitframerate(17 - waitfps);
-		}
-
-		frame_end = timerGettime();
-		frames++;
-
-		/* Calculate Frames Per Second */
-		if ((frame_end - time_start) >= 1000) {
-			frames = 0;
-			count_samples = 0;
-			time_start = timerGettime();
-		}
+		synchronize_us();
 	}
 
 
