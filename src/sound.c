@@ -1,94 +1,116 @@
 #include <SDL/SDL.h>
 #include "config.h"
 
-static Uint8 *audio_buffer;
-static Uint32 audio_len = 0;
-//static Uint8 *audio_pos;
-SDL_AudioSpec wanted, empty;
-int audio_pointer = 0;
-int audio_read = 0;
+#define SOUND_BUFFER_SIZE (1024 * 4 * 4)
 
-int buffer_size = 4096 * 32;
-//int buffer_size=512;
+static Uint8 *sound_buffer;
+static Uint32 buf_read_pos = 0;
+static Uint32 buf_write_pos = 0;
+static Uint32 buffered_bytes = 0;
+static int sound_running = 0;
+
+static SDL_AudioSpec wanted, empty;
+
+static SDL_mutex *sound_mutex;
+static SDL_cond *sound_cv;
 
 void fill_audio(void *udata, Uint8 *stream, int len)
 {
 	(void)udata;
 
-	if (( audio_len == 0 )) {
+	Uint8 *data = (Uint8 *)stream;
+	Uint8 *buffer = (Uint8 *)sound_buffer;
+
+	if (!sound_running)
 		return;
+
+	SDL_LockMutex(sound_mutex);
+
+	if (buffered_bytes >= (Uint32)len) {
+		if (buf_read_pos + len <= SOUND_BUFFER_SIZE ) {
+			memcpy(data, buffer + buf_read_pos, len);
+		} else {
+			int tail = SOUND_BUFFER_SIZE - buf_read_pos;
+			memcpy(data, buffer + buf_read_pos, tail);
+			memcpy(data + tail, buffer, len - tail);
+		}
+		buf_read_pos = (buf_read_pos + len) % SOUND_BUFFER_SIZE;
+		buffered_bytes -= len;
 	}
 
-	/* Mix as much data as possible */
-	len = ( len > (int)audio_len ? (int)audio_len : len );
-
-	/*protect against underruns*/
-	if (SDL_GetAudioStatus() == SDL_AUDIO_PAUSED && (audio_read + len >= audio_pointer) && (audio_read < audio_pointer)) {
-		SDL_PauseAudio(1);
-		audio_pointer = 0;
-		audio_read = 0;
-		return;
-	}
-
-	memcpy(stream, audio_buffer + audio_read, len);
-
-	audio_read += len;
-
-	if (audio_read >= buffer_size) {
-		audio_read = 0;
-	}
+	SDL_CondSignal(sound_cv);
+	SDL_UnlockMutex(sound_mutex);
 }
-
 
 int soundInit()
 {
-	if ((SDL_InitSubSystem( SDL_INIT_AUDIO )) < 0 ) {
+	if ((SDL_InitSubSystem(SDL_INIT_AUDIO)) < 0 ) {
 		printf("ERROR: can't init sound\n");
 		return 0;
 	}
+
 	printf("INFO: sound init success\n");
 
 	/* Set the audio format */
 	wanted.freq = 44100;
 	wanted.format = AUDIO_S16SYS;
 	wanted.channels = 2;    /* 1 = mono, 2 = stereo */
-	wanted.samples = 2048;  /* Good low-latency value for callback */
+	wanted.samples = 1024;  /* Good low-latency value for callback */
 	wanted.callback = fill_audio;
 	wanted.userdata = NULL;
 
 	/* Open the audio device, forcing the desired format */
 	SDL_OpenAudio(&wanted, &empty);
 
-	audio_buffer = (Uint8*)malloc(buffer_size);
-	memset(audio_buffer, 0, buffer_size);
+	sound_buffer = (Uint8 *)calloc(SOUND_BUFFER_SIZE, 1);
+	memset(sound_buffer, 0, SOUND_BUFFER_SIZE);
+
+	sound_mutex = SDL_CreateMutex();
+	sound_cv = SDL_CreateCond();
+
+	sound_running = 0;
+	SDL_PauseAudio(0);
 
 	return 1;
 }
 
-
-
-
 void soundFillBuffer(unsigned int dspLoop)
 {
-	if (audio_pointer <= buffer_size) {
-		memcpy(audio_buffer + audio_pointer, &dspLoop, 4);
-		audio_pointer += 4;
-	} else {
-		audio_pointer = 0;
-	}
+	Uint8 *buffer = (Uint8 *)sound_buffer;
 
-	if (audio_pointer > buffer_size * 1 / 5)
-		SDL_PauseAudio(0);
+	sound_running = 1;
 
-	if (audio_pointer >= audio_read)
-		audio_len = (audio_pointer - audio_read);
-	else
-		audio_len = ((buffer_size - audio_read));
+	SDL_LockMutex(sound_mutex);
+
+	while (buffered_bytes == SOUND_BUFFER_SIZE)
+		SDL_CondWait(sound_cv, sound_mutex);
+
+	*(Uint32 *)(buffer + buf_write_pos) = dspLoop;
+
+	buf_write_pos = (buf_write_pos + 4) % SOUND_BUFFER_SIZE;
+	buffered_bytes += 4;
+
+	SDL_CondSignal(sound_cv);
+	SDL_UnlockMutex(sound_mutex);
 }
-
 
 void soundClose()
 {
+	sound_running = 0;
+
+	SDL_LockMutex(sound_mutex);
+	buffered_bytes = SOUND_BUFFER_SIZE;
+	SDL_CondSignal(sound_cv);
+	SDL_UnlockMutex(sound_mutex);
+	SDL_Delay(100);
+
+	SDL_DestroyCond(sound_cv);
+	SDL_DestroyMutex(sound_mutex);
+
+	SDL_CloseAudio();
+
+	if (sound_buffer)
+		free(sound_buffer);
+
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
-
