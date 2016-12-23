@@ -189,10 +189,10 @@ int main(int argc, char *argv[])
 	fsInit();
 	/*readConfiguration(configFile);*/
 
-	if (!initEmu()) return 0;
+	if (!initEmu())
+		return 0;
 
 	fd_interface(FDP_DESTROY, (void*)0);
-	soundClose();
 	fsClose();
 
 	return 0;
@@ -212,7 +212,8 @@ int initEmu()
 	soundInit();
 	inputInit();
 
-	if (!fsOpenIso(imageFile)) return 0;
+	if (!fsOpenIso(imageFile))
+		return 0;
 
 	fd_interface(FDP_SET_ARMCLOCK, (void*)12500000);
 	fd_interface(FDP_SET_TEXQUALITY, (void*)0);
@@ -234,9 +235,9 @@ int initEmu()
 
 
 	/* Close everything and return */
-	videoClose();
-	soundClose();
 	inputClose();
+	soundClose();
+	videoClose();
 	SDL_Quit();
 
 	return 1;
