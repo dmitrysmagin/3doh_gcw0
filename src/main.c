@@ -223,7 +223,8 @@ int initEmu()
 	while (!quit) {
 		extern struct VDLFrame *frame;
 
-		fd_interface(FDP_DO_EXECFRAME, (struct VDLFrame*)frame);
+		fd_interface(FDP_DO_EXECFRAME_MT, (struct VDLFrame*)frame);
+		fd_interface(FDP_DO_FRAME_MT, (struct VDLFrame*)frame);
 
 		videoFlip();
 
