@@ -552,6 +552,10 @@ uint8_t *_arm_Init(void)
 {
 	int i;
 
+	cpu = &cpuInt;
+
+	cpu->Init();
+
 	MAS_Access_Exept = false;
 
 	CYCLES = 0;
@@ -590,6 +594,8 @@ uint8_t *_arm_Init(void)
 
 void _arm_Destroy(void)
 {
+	cpu->Destroy();
+
 	io_interface(EXT_WRITE_NVRAM, pNVRam);//_3do_SaveNVRAM(pNVRam);
 
 	free(pNVRam);
@@ -600,6 +606,8 @@ void _arm_Destroy(void)
 void _arm_Reset(void)
 {
 	int i;
+
+	cpu->Reset();
 
 	gSecondROM = 0;
 	CYCLES = 0;
@@ -1389,16 +1397,6 @@ void arm60_ALU(unsigned long cmd)
 	}
 }
 
-int _arm_ExecuteC(int cycles)
-{
-	int cnt = 0;
-	do {
-		cnt += _arm_Execute();
-	} while (cycles > cnt);
-
-	return cnt;
-}
-
 int _arm_Execute(void)
 {
 	unsigned long cmd;
@@ -1714,3 +1712,34 @@ void WriteIO(uint32_t addr, uint32_t val)
 {
 	mwritew(addr, val);
 }
+
+static void intInit(void)
+{
+}
+
+static void intReset(void)
+{
+}
+
+static int intExec(int cycles)
+{
+	int cnt = 0;
+	do {
+		cnt += _arm_Execute();
+	} while (cycles > cnt);
+
+	return cnt;
+}
+
+static void intDestroy(void)
+{
+}
+
+ARM60cpu cpuInt = {
+	intInit,
+	intReset,
+	intExec,
+	intDestroy
+};
+
+ARM60cpu *cpu = &cpuInt;

@@ -165,7 +165,7 @@ void _3do_Frame(struct VDLFrame *frame, bool __skipframe)
 		}
 
 		/* anything between 16 .. 250 is good */
-		cnt = _arm_ExecuteC(64);
+		cnt = cpu->Exec(64);
 		_3do_InternalFrame(cnt);
 		i += cnt;
 	} while (i < (12500000 / 60));

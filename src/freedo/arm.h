@@ -35,7 +35,16 @@
 extern "C" {
 #endif
 
-int _arm_ExecuteC(int cycles);
+typedef struct {
+	void  (*Init)(void);
+	void (*Reset)(void);
+	int (*Exec)(int cycles);
+	void (*Destroy)(void);
+} ARM60cpu;
+
+extern ARM60cpu *cpu;
+extern ARM60cpu cpuInt;
+
 int _arm_Execute(void);
 void _arm_Reset(void);
 void _arm_Destroy(void);
