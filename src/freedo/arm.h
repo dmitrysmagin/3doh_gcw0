@@ -29,11 +29,38 @@
 #define ARM_3DO_HEADER
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "retro_inline.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#pragma pack(push,1)
+struct ARM_CoreState {
+	//console memories------------------------
+	uint8_t *Ram;   //[RAMSIZE];
+	uint8_t *Rom;   //[ROMSIZE*2];
+	uint8_t *NVRam; //[NVRAMSIZE];
+
+	//ARM60 registers
+	uint32_t USER[16];
+	uint32_t CASH[7];
+	uint32_t SVC[2];
+	uint32_t ABT[2];
+	uint32_t FIQ[7];
+	uint32_t IRQ[2];
+	uint32_t UND[2];
+	uint32_t SPSR[6];
+	uint32_t CPSR;
+
+	bool nFIQ;              //external interrupt
+	bool SecondROM;         //ROM selector
+	bool MAS_Access_Exept;  //memory exceptions
+};
+#pragma pack(pop)
+
+extern struct ARM_CoreState arm;
 
 typedef struct {
 	void  (*Init)(void);

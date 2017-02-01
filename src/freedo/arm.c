@@ -116,32 +116,7 @@ static const uint16_t cond_flags_cross[] = {    //((cond_flags_cross[cond_feald]
 #define REG_PC  RON_USER[15]
 #define UNDEFVAL 0xBAD12345
 
-#pragma pack(push,1)
-
-struct ARM_CoreState {
-	//console memories------------------------
-	uint8_t *Ram;   //[RAMSIZE];
-	uint8_t *Rom;   //[ROMSIZE*2];
-	uint8_t *NVRam; //[NVRAMSIZE];
-
-	//ARM60 registers
-	uint32_t USER[16];
-	uint32_t CASH[7];
-	uint32_t SVC[2];
-	uint32_t ABT[2];
-	uint32_t FIQ[7];
-	uint32_t IRQ[2];
-	uint32_t UND[2];
-	uint32_t SPSR[6];
-	uint32_t CPSR;
-
-	bool nFIQ;              //external interrupt
-	bool SecondROM;         //ROM selector
-	bool MAS_Access_Exept;  //memory exceptions
-};
-#pragma pack(pop)
-
-static struct ARM_CoreState arm;
+struct ARM_CoreState arm;
 static int CYCLES;      //cycle counter
 
 //forward decls
