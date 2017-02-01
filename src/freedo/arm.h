@@ -44,6 +44,9 @@ typedef struct {
 
 extern ARM60cpu *cpu;
 extern ARM60cpu cpuInt;
+#ifdef MIPSREC
+extern ARM60cpu cpuRec;
+#endif
 
 int _arm_Execute(void);
 void _arm_Reset(void);

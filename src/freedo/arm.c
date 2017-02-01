@@ -552,7 +552,11 @@ uint8_t *_arm_Init(void)
 {
 	int i;
 
+#ifdef MIPSREC
+	cpu = &cpuRec;
+#else
 	cpu = &cpuInt;
+#endif
 
 	cpu->Init();
 

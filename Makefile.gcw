@@ -1,11 +1,13 @@
 CC = mipsel-linux-gcc
 TARGET = 3doh
-CFLAGS  = -Ofast -fomit-frame-pointer  -fdata-sections -ffunction-sections \
-	  -mips32r2 -Wall -Wextra -D__GCW__
+CFLAGS  = -O2 -mips32r2 -g -D__GCW__ -DMIPSREC -mplt -mno-shared \
+	  -fomit-frame-pointer  -fdata-sections -ffunction-sections \
+	  -Wall -Wextra
 CFLAGS += -Isrc -Isrc/freedo
-LDFLAGS = -lSDL -flto -Wl,--as-needed -Wl,--gc-sections -s
+LDFLAGS = -lSDL -flto -Wl,--gc-sections
 
 OBJS = \
+        src/freedo/mips_dynarec.o \
 	src/freedo/arm.o \
 	src/freedo/DiagPort.o\
 	src/freedo/quarz.o\
